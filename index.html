@@ -591,6 +591,9 @@
   .semi-val.hot{ color:#ffb457; }
   .semi-hint{ font-size:9.5px; color:#4a525f; letter-spacing:.2px; }
   .semi-hint.warn{ color:#c8794a; }
+  /* 导出 WAV：贴着这一行右端，窄屏换行后自己占一行 */
+  .mel-wav{ margin-left:auto; }
+  .mel-wav[data-busy="1"]{ opacity:.65; cursor:progress; }
   .drop-veil{
     position:fixed; inset:0; z-index:200; display:flex;
     align-items:center; justify-content:center;
@@ -912,6 +915,8 @@
       <b class="semi-val" id="semiVal">原调 C</b>
       <button type="button" class="semi-btn" id="semiUp" title="升半音">+</button>
       <span class="semi-hint" id="semiHint">配乐 · 贝斯 · 和声垫 同步</span>
+      <button type="button" class="mel-tg mel-wav" id="melWav" disabled
+              title="把当前移调后的配乐导出成 WAV（16 位 PCM）。时长与原曲一致，只改音高不改速度">导出 WAV</button>
     </div>
     <input type="file" id="melFile" class="mel-file" accept="audio/*,.mp3,.wav,.m4a,.aac,.ogg,.flac">
     <audio id="melAudio" preload="metadata" hidden></audio>
@@ -968,7 +973,7 @@
     <br>
     <b>自己排和弦</b>：和弦条有 <b>8 格</b>，一个小节一格。点任意一格就能单独给那一小节挑和弦——七个级数任选，下面标着实际和弦名（跟着当前调走），比如 <b>Ⅵ Am / Ⅴ G / Ⅳ F / Ⅴ G</b> 点四下就是 6545，想 6542 就把最后一格点成 <b>Ⅱ Dm</b>。八格刚好放得下 <b>4536251</b> 这种流行进行（预设里就有，可以直接点）：它的最后两格是 Ⅰ 和 Ⅵ，落在 Ⅵ 上是为了能顺回开头的 Ⅳ，听感不会像收尾。老的四小节进行照旧四小节循环，两种长度混着用不冲突。需要大三、小三对调的（像小调里把 Ⅴ 弹成大三），点面板里的「大三 / 小三」。改完芯片会显示「自定」，再点它会轮回到预设的第一套。面板不自动关，可以一边放着一边换着听。
     <br>
-    <b>旋律</b>：点「载入旋律」选一段 <b>mp3 / wav / m4a</b>，或者直接把文件拖进页面，载入后会自动试听两秒（停住是正常的，说明文件已就绪），点播放才正式跟着鼓机走。「进入」可以选同时开始，也可以让鼓机先空打 1 / 2 / 4 小节再进，方便留前奏。音量、倍速、循环都能单独调；点进度条可跳转。改鼓机速度时，只要「跟随鼓机」开着，旋律会自动按同一比例跟上；关掉它，才需要自己拖「倍速」对齐。文件只在本地播放、不会上传，刷新页面后需要重新载入。如果某个 mp3 载入后显示<b>「解码模式」</b>，说明浏览器的播放组件拿它没办法，软件改用自己解码在播，能听但倍速会变调；mp3 只响一两秒就停的，也会自动切到这个模式重放。遇到「这是加密音乐文件」，说明下载的是 ncm / qmc / kgm 这类加密格式，需要先在音乐客户端里导出成普通 MP3。遇到<b>「这是 WMA」</b>，说明后缀虽然写着 mp3、内容其实是 WMA，只能先用格式工厂之类的工具转成 MP3。<br><b>对速与移调</b>：「跟随鼓机」开着时，改鼓机 BPM 配乐会按同一比例跟着变，浏览器保调、不会变成花腔；想要别的比例，关掉它直接拖「倍速」。点 <b>− / +</b> 一次移半音，配乐、贝斯、和声垫一起换调，范围 ±6。配乐要重算一遍：4 分钟的歌在电脑上约 8 秒，手机上更久，处理时名字那里会显示百分比；重算期间配乐照常播放，算完交叉淡化切过去，不会中断也不会掉拍。拖动进度条松手后，鼓机的小节线会回到这一拍重新对齐，两边不会越走越散。
+    <b>旋律</b>：点「载入旋律」选一段 <b>mp3 / wav / m4a</b>，或者直接把文件拖进页面，载入后会自动试听两秒（停住是正常的，说明文件已就绪），点播放才正式跟着鼓机走。「进入」可以选同时开始，也可以让鼓机先空打 1 / 2 / 4 小节再进，方便留前奏。音量、倍速、循环都能单独调；点进度条可跳转。改鼓机速度时，只要「跟随鼓机」开着，旋律会自动按同一比例跟上；关掉它，才需要自己拖「倍速」对齐。文件只在本地播放、不会上传，刷新页面后需要重新载入。如果某个 mp3 载入后显示<b>「解码模式」</b>，说明浏览器的播放组件拿它没办法，软件改用自己解码在播，能听但倍速会变调；mp3 只响一两秒就停的，也会自动切到这个模式重放。遇到「这是加密音乐文件」，说明下载的是 ncm / qmc / kgm 这类加密格式，需要先在音乐客户端里导出成普通 MP3。遇到<b>「这是 WMA」</b>，说明后缀虽然写着 mp3、内容其实是 WMA，只能先用格式工厂之类的工具转成 MP3。<br><b>对速与移调</b>：「跟随鼓机」开着时，改鼓机 BPM 配乐会按同一比例跟着变，浏览器保调、不会变成花腔；想要别的比例，关掉它直接拖「倍速」。点 <b>− / +</b> 一次移半音，配乐、贝斯、和声垫一起换调，范围 ±6。配乐要重算一遍：4 分钟的歌在电脑上约 8 秒，手机上更久，处理时名字那里会显示百分比；重算期间配乐照常播放，算完交叉淡化切过去，不会中断也不会掉拍。调好之后点这一行右端的<b>导出 WAV</b>，就把此刻的配乐存成 16 位 PCM 的 wav —— <b>存的是已经移调过的那一份</b>，时长和原曲一样（移调只改音高、不改速度），可以直接拿去剪辑软件或别的设备上用。不乘倍速也不算主音量，所以导出来就是干净的这一份。没载入配乐时按钮是灰的。拖动进度条松手后，鼓机的小节线会回到这一拍重新对齐，两边不会越走越散。
     <br>
     <b>手机熄屏 / 切到别的应用</b>：播放时会自动申请「屏幕常亮」，手机不会自己锁屏（省电模式下系统可能拒绝，属正常）。如果确实锁屏了或切走了，回来时会从刚才那一格接着播，不用重头开始；个别手机会因为系统限制需要你再点一下屏幕才出声。<br>
     <b>存档</b>：点「导出」把整套设置（拍号、速度、各层变奏、改过的格子、音色、调与进行、收藏、配乐参数）存成一个 <b>json</b> 文件；到手机或平板上打开同一个网页，点「导入」选它，整套原样回来。想要几套就存几个文件，自己改名区分。配乐音频不在文件里，只记住名字和参数，换设备后重新选那首歌即可。
@@ -3670,6 +3675,11 @@ const semiUpBtn   = document.getElementById("semiUp");
 const semiDownBtn = document.getElementById("semiDown");
 const semiValEl   = document.getElementById("semiVal");
 const semiHintEl  = document.getElementById("semiHint");
+const melWavBtn   = document.getElementById("melWav");
+
+/* 导出 WAV 期间不重入。一首 4 分钟的歌要遍历两千多万个采样，
+   连点两下会在第二次把已经算了一半的 ArrayBuffer 再分配一遍。 */
+let melExporting = false;
 
 function fmtTime (s) {
   if (!isFinite(s) || s < 0) s = 0;
@@ -4201,6 +4211,7 @@ function clearMelody () {
   melody.busy = false;
   melody.jobId++;
   syncMelodyUI();
+  syncTransposeUI();     // 配乐清掉后「导出 WAV」要跟着置灰
 }
 
 function syncMelodyUI () {
@@ -4232,6 +4243,8 @@ function syncTransposeUI () {
   semiValEl.classList.toggle("hot", state.transpose !== 0);
   semiDownBtn.disabled = state.transpose <= -6;
   semiUpBtn.disabled = state.transpose >= 6;
+  // 没载入配乐、正在算移调、正在编码，三种情况都不能导出
+  melWavBtn.disabled = !(melody.ready && !melody.busy && !melExporting);
 
   if (melody.busy) {
     semiHintEl.textContent = "正在处理配乐…";
@@ -6445,6 +6458,100 @@ function downloadBlob (blob, name) {
   a.click();
   a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 5000);
+}
+
+/* =========================================================
+   配乐导出 WAV
+   导出的是 melody.buffer —— 已经过相位声码器、你此刻正在听的那一份。
+   不再乘倍速、不再走主音量：倍速会连带把音高一起改了，
+   用户要的是"把我调好的这个调存下来"，不是"把播放器当前状态录一遍"。
+   ========================================================= */
+async function wavBlobFromBuffer (buf, onProgress) {
+  const nch = Math.max(1, Math.min(2, buf.numberOfChannels));
+  const n = buf.length;
+  const rate = Math.round(buf.sampleRate) || 48000;
+  const dataBytes = n * nch * 2;
+
+  // 直接往定长的 ArrayBuffer 里写，不经过中间数组：
+  // 4 分钟 48k 立体声光采样就有 90MB，多拷一次就是多占 90MB
+  const ab = new ArrayBuffer(44 + dataBytes);
+  const dv = new DataView(ab);
+
+  let p = 0;
+  const putStr = s => { for (let i = 0; i < s.length; i++) dv.setUint8(p++, s.charCodeAt(i)); };
+  putStr("RIFF"); dv.setUint32(p, 36 + dataBytes, true); p += 4;
+  putStr("WAVE");
+  putStr("fmt ");  dv.setUint32(p, 16, true); p += 4;
+  dv.setUint16(p, 1, true); p += 2;                 // 1 = PCM 整数
+  dv.setUint16(p, nch, true); p += 2;
+  dv.setUint32(p, rate, true); p += 4;
+  dv.setUint32(p, rate * nch * 2, true); p += 4;    // 字节率
+  dv.setUint16(p, nch * 2, true); p += 2;           // 块对齐
+  dv.setUint16(p, 16, true); p += 2;                // 位深
+  putStr("data"); dv.setUint32(p, dataBytes, true); p += 4;
+
+  const L = buf.getChannelData(0);
+  const R = nch > 1 ? buf.getChannelData(1) : null;
+  const STEP = 1 << 18;                            // 每块 26 万采样，约 1MB
+  for (let i0 = 0; i0 < n; i0 += STEP) {
+    const i1 = Math.min(n, i0 + STEP);
+    for (let i = i0; i < i1; i++) {
+      let v = L[i];
+      dv.setInt16(p, v <= -1 ? -32768 : v >= 1 ? 32767 : (v * 32767) | 0, true); p += 2;
+      if (R) {
+        v = R[i];
+        dv.setInt16(p, v <= -1 ? -32768 : v >= 1 ? 32767 : (v * 32767) | 0, true); p += 2;
+      }
+    }
+    if (onProgress) onProgress(i1 / n);
+    // 让出主线程：手机上遍历两千多万个采样要几百毫秒，不分块会卡住进度条和播放
+    await new Promise(r => setTimeout(r, 0));
+  }
+  return new Blob([ab], { type: "audio/wav" });
+}
+
+if (melWavBtn) {
+  melWavBtn.addEventListener("click", async () => {
+    if (melExporting) return;
+    melExporting = true;
+    melWavBtn.dataset.busy = "1";
+    melWavBtn.disabled = true;
+    try {
+      /* 有些文件是交给媒体元素直接播的（没走过解码），这时手上没有 buffer。
+         先按需解一份出来再编码 —— 不写回 melody.buffer，免得顺手把播放模式也改了。 */
+      let buf = melody.buffer || melody.orig;
+      if (!buf && melody.file) {
+        melWavBtn.textContent = "解码中…";
+        buf = await decodeToBuffer(melody.file);
+      }
+      if (!buf || !buf.length) {
+        semiHintEl.textContent = "这个文件解不开，导不了 WAV";
+        semiHintEl.classList.add("warn");
+        await new Promise(r => setTimeout(r, 1600));
+        return;
+      }
+
+      melWavBtn.textContent = "编码中…";
+      const blob = await wavBlobFromBuffer(buf, pct => {
+        melWavBtn.textContent = "编码 " + Math.round(pct * 100) + "%";
+      });
+      const semi = melody.semis || 0;
+      const tail = semi === 0 ? "原调" : (semi > 0 ? "+" : "-") + Math.abs(semi) + "半音";
+      downloadBlob(blob, (melody.name || "配乐") + " " + tail + ".wav");
+      melWavBtn.textContent = "已导出";
+      await new Promise(r => setTimeout(r, 1200));
+    } catch (err) {
+      melWavBtn.textContent = "导出失败";
+      semiHintEl.textContent = "WAV 编码失败，可能是文件太长、内存不够";
+      semiHintEl.classList.add("warn");
+      await new Promise(r => setTimeout(r, 1600));
+    } finally {
+      melExporting = false;
+      delete melWavBtn.dataset.busy;
+      melWavBtn.textContent = "导出 WAV";
+      melWavBtn.disabled = !(melody.ready && !melody.busy);
+    }
+  });
 }
 
 const expBtnEl = document.getElementById("expBtn");

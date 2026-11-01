@@ -3,7 +3,7 @@
 **一个双击就能打开的浏览器鼓机 / 伴奏机。单文件、零依赖、可离线。**
 
 <p align="left">
-  <img alt="version" src="https://img.shields.io/badge/version-10.0-ff9f43">
+  <img alt="version" src="https://img.shields.io/badge/version-10.1-ff9f43">
   <img alt="license" src="https://img.shields.io/badge/license-MIT-4c9a2a">
   <img alt="deps" src="https://img.shields.io/badge/dependencies-0-blue">
   <img alt="build" src="https://img.shields.io/badge/build-none-blue">
@@ -29,7 +29,7 @@
 
 <table>
 <tr><th width="160">项目</th><th>说明</th></tr>
-<tr><td><b>当前版本</b></td><td>10.0（2026-11-01）</td></tr>
+<tr><td><b>当前版本</b></td><td>10.1（2026-11-01）</td></tr>
 <tr><td><b>形态</b></td><td>单个 <code>index.html</code>，6886 行，所有音色/样式/逻辑内联</td></tr>
 <tr><td><b>依赖</b></td><td>无。不联网、不构建、不装包</td></tr>
 <tr><td><b>许可</b></td><td>MIT</td></tr>
@@ -73,7 +73,7 @@ git clone https://github.com/lunanami1987/rhythm-buddy.git
 | **和声垫** | 按和弦进行铺底，适合一个人弹唱时补声部 |
 | **打击垫** | 8 个可实时敲击的垫子，键盘 `A S D F G H J K`，带力度感应，可写入步进 |
 | **配乐** | 导入 mp3/wav/m4a，可变速不变调 / 变调不变速（±6 半音），可跟随鼓机 BPM |
-| **导出** | 编曲导出为 **MIDI**（1/2/4/7/8/16 小节），鼓 / 贝斯 / 和声垫分三轨、鼓走 GM 通道，可拖进任意 DAW 换音源继续编；另有 JSON 存档导出/导入 |
+| **导出** | 编曲导出为 **MIDI**（1/2/4/7/8/16 小节），鼓 / 贝斯 / 和声垫分三轨、鼓走 GM 通道，可拖进任意 DAW 换音源继续编；载入的配乐可导出为 **WAV**（16 位 PCM，导的是移调之后的那一份）；另有 JSON 存档导出/导入 |
 | **时值** | 每个鼓音持续多久可调（30%–100%，默认 90%），网格底边的横线就是实际长度，导出的 MIDI 按同一长度写 |
 | **其它** | 单步撤销、每轨一键清空、收藏夹、节拍器、预备拍、淡出、混响 |
 
@@ -92,6 +92,7 @@ git clone https://github.com/lunanami1987/rhythm-buddy.git
 - **翻页**：手机上一行放不下 16 格，硬挤每格只剩 16 像素、按下去常碰到两格。所以窄屏每屏只放 **2 拍（8 格，每格 34 像素）**，网格顶上有一条导航条可以点左右翻、也能拖滑块。**翻页不会自己动**，播放中也停在当前页。横屏或电脑上一行放得下，导航条会自己消失
 - **移调要等**：一首 4 分钟的歌，电脑上约 8 秒，手机上可能要 20–40 秒。处理期间原调会继续播，算完自动无缝切过去，不会静音卡住
 - **导出 MIDI**：走浏览器下载，电脑上落在「下载」文件夹；手机上下载后一般在浏览器自己的下载列表里，或系统的「文件」App 下载目录里。iOS 上如果点了没反应，先去 Safari 的下载列表看一眼
+- **导出 WAV**：按钮在「移调」那一行的右端，导的是配乐本身（已移调），不是鼓机。文件不小，4 分钟约 43MB，点了之后先去下载列表找，不要连点
 
 ## 键盘快捷键
 
@@ -108,6 +109,7 @@ git clone https://github.com/lunanami1987/rhythm-buddy.git
 
 - **移调范围 ±6 半音**。到 ±6 时音色会明显发闷（界面上会提示）——这是相位声码器的固有代价。要大幅变调，建议直接找个对应调的伴奏版本
 - **导出只有 MIDI**，不导音频。加 MP3 编码器会破坏「单文件零依赖」；改导 WAV 则要把整套发声跑一遍离线渲染，手机上慢、内存也吃紧。要成品音频：把 MIDI 拖进 DAW 换音源，或用内录
+- **WAV 导出只管配乐**。导的是你载入并移调过的那一段（走的就是正在播放的那份缓冲，逐采样一致），**不含鼓机、贝斯、和声垫**——那三样请用 MIDI 导出。48kHz 立体声 16 位下，4 分钟约 **43MB**，编码时内存会再涨一份文件大小的量；iOS 上下载这么大的文件可能没反应，建议在电脑上导
 - **MIDI 不含载入的旋律**。那是外部音频文件，转不成音符。MIDI 只记鼓机、贝斯、和声垫这三样
 - **长音频吃内存**。一首 4 分钟的歌在 48kHz 立体声下，原始 + 移调后两份约 180MB，处理峰值可能到 300MB。低端手机上（3GB 内存）会比较吃力
 - **手机上只能看 2 拍**。16 格一眼看全是鼓机本来的价值，但 6 英寸的屏幕放不下 34 像素宽的 16 格，只能二选一。要全貌用横屏
@@ -121,7 +123,8 @@ git clone https://github.com/lunanami1987/rhythm-buddy.git
 
 | 版本 | 主题 | 一句话 |
 |---|---|---|
-| **10.0** | 和弦补齐八格 | 4536251 补到八个和弦，终止落 vi 而不是 I |
+| **10.1** | 配乐导出 WAV | 移调后的伴奏直接存成 16 位 WAV，和正在听的那一份逐采样一致 |
+| 10.0 | 和弦补齐八格 | 4536251 补到八个和弦，终止落 vi 而不是 I |
 | 9.0 | 反馈修复 | 撤掉加过头的自动翻页，修掉"关着的层还在闪" |
 | 8.0 | 窄屏分页 | 手机每屏 2 拍 8 格，每格 34 像素 |
 | 7.0 | 音符时值 | 鼓音不再是一律 39ms 的断头音，网格上能看到长度 |
@@ -181,9 +184,9 @@ git clone https://github.com/lunanami1987/rhythm-buddy.git
 
 A single-file browser drum machine / backing-track player. No install, no build, no network — just open `index.html`.
 
-**Current version: 10.0.** 9 layers / 13 tracks, 8 velocity-sensitive pads, 17 style presets, bass and chord pads, plus an imported-audio player with independent tempo and pitch control (phase vocoder).
+**Current version: 10.1.** 9 layers / 13 tracks, 8 velocity-sensitive pads, 17 style presets, bass and chord pads, plus an imported-audio player with independent tempo and pitch control (phase vocoder).
 
-Arrange a groove, then export it as **MIDI** (drums / bass / chord pad on three tracks, GM channel 10 for drums) and keep working in any DAW.
+Arrange a groove, then export it as **MIDI** (drums / bass / chord pad on three tracks, GM channel 10 for drums) and keep working in any DAW. The imported track can also be exported as **WAV** after pitch shifting.
 
 Works on desktop and mobile. Everything is inlined: zero external requests, fully offline.
 
