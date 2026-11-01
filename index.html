@@ -469,7 +469,9 @@
     border-color:#fff;
     box-shadow:0 0 14px rgba(255,170,80,.5), inset 0 0 0 1px rgba(255,255,255,.85);
   }
-  .layer[data-on="0"] .steps{ opacity:.28; }
+  /* 关掉的层：不只是调暗。去色之后和"亮着"的暖橙一眼就能分开，
+     否则一行棕色格子在深色底上看着就像在响，其实一个音都不发 */
+  .layer[data-on="0"] .steps{ opacity:.28; filter:grayscale(1); }
 
   .swipe-hint{
     display:none; margin:9px 2px 0; text-align:center;
@@ -949,7 +951,7 @@
     <br>
     <b>时值</b>：控制行里的「时值」滑杆决定鼓的每个音持续多久——按它到下一击的间隔乘这个比例，<b>90% 是连奏</b>（八分音符就占满半个拍子），<b>30% 是很断的断奏</b>。改的时候不用重新铺格子，网格里每格底边那条<b>横线</b>会立刻跟着变长变短，跨到后面的格子也会连着画下去，一眼能看出哪个音是八分、哪个是十六分。导出的 MIDI 用的也是这个长度：以前鼓的音符一律写死成 39ms，拖进 DAW 换个采样器播就是一串断头音，现在按真实时值写。
     <br>
-    <b>窄屏翻页</b>：手机上一条轨道能用的宽度只有 290 像素左右，16 格硬挤进去，每格只剩 <b>16 像素</b>——比指尖小得多，按下去经常同时碰到两格。所以窄屏下每屏只放 <b>2 拍（8 格）</b>，每格 <b>34 像素</b>；网格顶上因此多一条<b>导航条</b>，点左半边回前两拍、点右半边到后两拍，也能按住滑块左右拖。播放时当前拍跑出屏幕会<b>自动跟过去</b>，不用一边弹一边翻。3/4 是两拍一页，6/8 一大拍就是 6 格、所以一拍一页。屏幕宽到一行放得下时这条导航条会自己消失。导出的 MIDI 不受影响，它认的是音符在第几格，跟屏幕翻到哪一页无关。
+    <b>窄屏翻页</b>：手机上一条轨道能用的宽度只有 290 像素左右，16 格硬挤进去，每格只剩 <b>16 像素</b>——比指尖小得多，按下去经常同时碰到两格。所以窄屏下每屏只放 <b>2 拍（8 格）</b>，每格 <b>34 像素</b>；网格顶上因此多一条<b>导航条</b>，点左半边回前两拍、点右半边到后两拍，也能按住滑块左右拖。<b>翻页只由你操作</b>，播放时导航条不会自己动——边听边调的时候页面横移一下，准备点的那格就被甩走了。代价是游标走到别的页时看不见高亮，想看着游标就提前翻过去。3/4 是两拍一页，6/8 一大拍就是 6 格、所以一拍一页。屏幕宽到一行放得下时这条导航条会自己消失。导出的 MIDI 不受影响，它认的是音符在第几格，跟屏幕翻到哪一页无关。
     <br>
     <b>一拍节奏型</b>：控制行右端的「节奏型」按钮，可选 <b>直八 · 直十六 · 前8后16 · 前16后8 · 附点八 · 反附点</b>。选中后，点格子里任意一格，就直接把<b>这一拍</b>按该型铺好（第 1 格加重音），不用再一格一格点；横着一拖，整行按拍铺满。同一拍再点一次就是清空，点错了立刻撤得回来。选「单格」恢复原来的逐格编辑。6/8 一格就是八分，切不出十六分，所以只留<b>直八 · 全八</b>两档。
     <br>
@@ -2454,7 +2456,8 @@ function buildGrid () {
       layerEl.appendChild(track);
 
       stepEls[part.id] = row;
-      flatRows.push(row);
+      // 连层号一起记：关掉的层播放时不该跟着闪，否则看着亮、听着没声
+      flatRows.push({ row: row, lid: layer.id });
     });
 
     gridEl.appendChild(layerEl);
@@ -2499,12 +2502,6 @@ function pagePlan () {
 
 function pagingOn () {
   return window.innerWidth <= 760 && pagePlan().length > 1;
-}
-
-function pageOfStep (step) {
-  const plan = pagePlan();
-  for (let k = plan.length - 1; k >= 0; k--) if (step >= plan[k].s0) return k;
-  return 0;
 }
 
 function buildPager () {
@@ -2598,12 +2595,10 @@ function fitSteps () {
   gridEl.style.setProperty("--sw", Math.max(22, Math.min(44, w)) + "px");
 }
 
-// 播放时跟页：当前拍跑出屏幕就等于看不见，实时演奏时这是刚需
-function followPage (step) {
-  if (!pagingOn() || pagerDragging) return;
-  const k = pageOfStep(step);
-  if (k !== curPage) paintPage(k);
-}
+/* 翻页只由人操作。
+   曾经做过「播放时当前拍跑出屏幕就自动翻过去」，但边听边调的时候，
+   页面自己横移会把正准备点的那一格甩走 —— 跟着点反而点空。
+   宁可看不见游标，也别在心里数着拍子的时候脚下地板被抽走。 */
 
 function bindPagerDrag () {
   const ratioAt = e => {
@@ -3504,14 +3499,17 @@ function highlight (i) {
   if (curHi === i) return;
   if (curHi >= 0) {
     for (let k = 0; k < flatRows.length; k++) {
-      const el = flatRows[k][curHi];
+      const el = flatRows[k].row[curHi];
       if (el) el.classList.remove("playing");
     }
   }
   curHi = i;
   if (i >= 0) {
     for (let k = 0; k < flatRows.length; k++) {
-      const el = flatRows[k][i];
+      // 关掉的层不亮：它本来就不发声，格子还跟着闪就是在骗眼睛
+      const st = state.layers[flatRows[k].lid];
+      if (!st || !st.on) continue;
+      const el = flatRows[k].row[i];
       if (el) el.classList.add("playing");
     }
   }
@@ -3523,7 +3521,6 @@ function tick () {
   while (visQueue.length && visQueue[0].time <= now) {
     const ev = visQueue.shift();
     highlight(ev.step);
-    followPage(ev.step);       // 窄屏：当前拍跑出这一屏就跟过去，不然演奏时是盲的
     lastVisStep = ev.step;
     lastVisTime = ev.time;
     if (ev.pads) for (const id of ev.pads) flashPad(id);
@@ -5025,7 +5022,11 @@ function setLayerOn (layerId, on) {
   state.layers[layerId].on = on;
   if (typeof markStyle === "function") markStyle(-1);
   const el = gridEl.querySelector('[data-layer="' + layerId + '"]');
-  if (el) el.dataset.on = on ? "1" : "0";
+  if (el) {
+    el.dataset.on = on ? "1" : "0";
+    // 关层的那一刻先把残留的播放高亮抹掉，不然暂停状态下会留一格亮在那里
+    if (!on) el.querySelectorAll(".step.playing").forEach(s => s.classList.remove("playing"));
+  }
   const tg = gridEl.querySelector('[data-toggle="' + layerId + '"]');
   if (tg) tg.classList.toggle("on", on);
 }
