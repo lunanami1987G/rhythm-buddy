@@ -198,6 +198,32 @@
     box-shadow:0 16px 46px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.04);
     overflow-x:auto;
   }
+  /* ---------- 分页导航（窄屏专属） ----------
+     只在需要翻页时出现。轨道可点可拖，滑块位置 = 当前页。
+     特意不用「网格整体横向滚动」：网格区已经占用了横拖手势（按拍铺满整行），
+     再加自由滚动，同一根手指就要同时表达两件事，必然误触。 */
+  .pager{
+    display:none; align-items:center; gap:9px;
+    padding:0 2px 9px; margin-bottom:5px;
+    border-bottom:1px solid rgba(255,255,255,.05);
+  }
+  .pager.on{ display:flex; }
+  .pager-lab{
+    flex:0 0 auto; font-size:10.5px; color:#96a0b1; letter-spacing:.3px;
+    font-variant-numeric:tabular-nums; min-width:56px;
+  }
+  .pager-rail{
+    position:relative; flex:1 1 auto; height:22px; border-radius:6px;
+    background:#20242c; border:1px solid #303845;
+    cursor:pointer; touch-action:none;
+  }
+  .pager-thumb{
+    position:absolute; top:2px; bottom:2px; left:0; width:40%;
+    border-radius:4px; background:linear-gradient(180deg,#ffb457,#e07d15);
+    transition:left .16s ease, width .16s ease;
+  }
+  .pager-rail.drag .pager-thumb{ transition:none; }
+
   .layer{ padding:5px 0 7px; }
   .layer + .layer{ border-top:1px solid rgba(255,255,255,.05); }
 
@@ -387,7 +413,11 @@
   .track-clear:hover{ color:#fff; background:#3a4250; }
   .track-name .s{ display:none; }
 
-  .steps{ display:flex; gap:3px; align-items:stretch; min-width:0; }
+  /* .steps 是「一屏的窗口」，.ptrack 才是那条真的时间线。
+     窄屏时格子固定宽、窗口 overflow:hidden，换页靠 .ptrack 平移；
+     宽屏窗口不限宽，ptrack 自然撑满，一行看全 —— 两边共用同一套 DOM。 */
+  .steps{ display:flex; gap:3px; align-items:stretch; min-width:0; position:relative; }
+  .ptrack{ display:flex; gap:3px; align-items:stretch; min-width:0; flex:1 1 auto; transition:transform .18s ease; }
   .beat{ display:flex; gap:3px; flex:1 1 0; min-width:0; }
   .beat + .beat{ margin-left:7px; }
   .step{
@@ -412,6 +442,23 @@
     content:''; position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
     width:4px; height:4px; border-radius:50%; background:#7a3706; opacity:.85;
   }
+
+  /* 时值：格子底边那条横线，长度就是这个音能响多久。
+     起音格画本格那一截，跨到后面的格子标 .tail 接着画下去。
+     不拿整格变色表达，是因为九层一起看时整行会被填满，反倒看不出节奏型在哪。 */
+  .step::before{
+    content:''; position:absolute; left:1px; bottom:2px; height:4px; border-radius:2px;
+    width:calc((100% - 2px) * var(--g, 0));
+    background:linear-gradient(90deg,#ffe3b8,#ffab4d);
+    opacity:0; pointer-events:none;
+  }
+  .step.on::before{ opacity:1; }
+  /* 延续格：底色带一点暖，跟真空格区分开，否则尾巴和「这一格没音」看着一样 */
+  .step.tail{
+    border-color:#6b5233;
+    background:linear-gradient(180deg,#2f2a23,#25211b);
+  }
+  .step.tail::before{ opacity:.8; }
   .step.playing{
     background:linear-gradient(180deg,#39424f,#2c323c);
     border-color:#5b6577;
@@ -695,7 +742,13 @@
     .beat-sel button{ padding:8px 9px; font-size:11.5px; }
     .vol{ margin-left:0; width:100%; }
     .vol input{ flex:1; }
-    .grid{ padding:9px 8px 11px; border-radius:13px; overflow-x:visible; }
+    .grid{ padding:9px 8px 11px; border-radius:13px; overflow-x:hidden; }
+    /* 窄屏：一行只放一页。格子固定宽（--sw 由 fitSteps 量出来），
+       窗口裁掉右边，靠 ptrack 平移换页。 */
+    .steps{ overflow:hidden; }
+    .ptrack{ flex:0 0 auto; }
+    .beat{ flex:0 0 auto; }
+    .step{ width:var(--sw,34px); flex:0 0 auto; }
     .layer-head{ min-width:0; gap:5px; padding:2px 0 5px; }
     /* 40px 装不下「名字 + 清空按钮」：名字会被压成「底..」这种。第一列给到 56px，
        同时把左内边距和间距收窄，把省下的宽度还给右边的格子。 */
@@ -808,6 +861,9 @@
     <label class="ctl">速度<input type="range" id="bpmRange" min="40" max="300" value="96"><b id="bpmVal">96</b></label>
     <label class="ctl">摇摆<input type="range" id="swingRange" min="50" max="70" value="50"><b id="swingVal">50%</b></label>
     <label class="ctl">混响<input type="range" id="revRange" min="0" max="100" value="15"><b id="revVal">15</b></label>
+    <label class="ctl" title="每个音的时值：占它到下一击间隔的比例。100% 连奏，30% 断奏。网格底边的横条和导出的 MIDI 都按它算">
+      时值<input type="range" id="gateRange" min="30" max="100" value="90"><b id="gateVal">90%</b>
+    </label>
     <button class="cell-btn" type="button" id="cellBtn" data-on="0"
       title="选一种一拍内的节奏，之后点格子就按它铺满这一拍">节奏型 <b id="cellName">单格</b></button>
   </div>
@@ -890,6 +946,10 @@
     <b>怎么用</b>：左边圆点按亮即该层发声，可同时开好几层叠加。用 <b>◀ ▶</b> 切换这一层的变奏，几秒钟就能配出伴奏。再点格子可微调，改过之后这一层显示「自定义」。手机上直接在格子上上下滑就能滚页面，不会误改；想改哪一格，轻点一下即可。底下的<b>风格</b>是整套预设（拍号 + 速度 + 各层打法），共 17 套：民谣、弹唱、慢歌、华尔兹、6/8 民歌、慢 6/8、放克、摇摆、布鲁斯、雷鬼、City、电子、波萨、拉丁、桑巴、进行曲、三拍爵士。点「布鲁斯」会自动把摇摆推到 66%（三连感），这是 shuffle 的定义性特征，手动拖到别的位置就不对味了。点一下换一整套，套完之后还能再改；已经选中的那个再点一次就是取消，退回你刚才编好的样子。
     <br>
     <b>导出 MIDI</b>：工具行右边那个按钮会把当前编曲写成 <b>.mid</b> 文件——鼓、贝斯、和声垫分成三个音轨，鼓走 GM 打击乐通道，拖进任何 DAW 都能直接换音源、改速度、接着往下编。导多少小节可选，<b>选 7 正好是一个完整的 4536251 循环</b>。MIDI 只记编曲、<b>不含载入的旋律</b>（那是音频，转不成音符），想要带伴奏的成品还是直接在页面里放；导出几毫秒就完事，不用停播放。
+    <br>
+    <b>时值</b>：控制行里的「时值」滑杆决定鼓的每个音持续多久——按它到下一击的间隔乘这个比例，<b>90% 是连奏</b>（八分音符就占满半个拍子），<b>30% 是很断的断奏</b>。改的时候不用重新铺格子，网格里每格底边那条<b>横线</b>会立刻跟着变长变短，跨到后面的格子也会连着画下去，一眼能看出哪个音是八分、哪个是十六分。导出的 MIDI 用的也是这个长度：以前鼓的音符一律写死成 39ms，拖进 DAW 换个采样器播就是一串断头音，现在按真实时值写。
+    <br>
+    <b>窄屏翻页</b>：手机上一条轨道能用的宽度只有 290 像素左右，16 格硬挤进去，每格只剩 <b>16 像素</b>——比指尖小得多，按下去经常同时碰到两格。所以窄屏下每屏只放 <b>2 拍（8 格）</b>，每格 <b>34 像素</b>；网格顶上因此多一条<b>导航条</b>，点左半边回前两拍、点右半边到后两拍，也能按住滑块左右拖。播放时当前拍跑出屏幕会<b>自动跟过去</b>，不用一边弹一边翻。3/4 是两拍一页，6/8 一大拍就是 6 格、所以一拍一页。屏幕宽到一行放得下时这条导航条会自己消失。导出的 MIDI 不受影响，它认的是音符在第几格，跟屏幕翻到哪一页无关。
     <br>
     <b>一拍节奏型</b>：控制行右端的「节奏型」按钮，可选 <b>直八 · 直十六 · 前8后16 · 前16后8 · 附点八 · 反附点</b>。选中后，点格子里任意一格，就直接把<b>这一拍</b>按该型铺好（第 1 格加重音），不用再一格一格点；横着一拖，整行按拍铺满。同一拍再点一次就是清空，点错了立刻撤得回来。选「单格」恢复原来的逐格编辑。6/8 一格就是八分，切不出十六分，所以只留<b>直八 · 全八</b>两档。
     <br>
@@ -2141,6 +2201,7 @@ function bassNotes (style, steps, per) {
 const state = {
   beat:"4/4", steps:16,
   bpm:96, swing:50, volume:0.78, reverb:0.15,
+  gate:0.9,                            // 时值：每个音占「到下一击的间隔」的比例（0.3 断奏 ~ 1 连奏）
   countIn:false, fade:0,
   playing:false,
   pattern:{}, layers:{},
@@ -2193,6 +2254,8 @@ const swingVal = document.getElementById("swingVal");
 const volRange = document.getElementById("volRange");
 const revRange = document.getElementById("revRange");
 const revVal = document.getElementById("revVal");
+const gateRange = document.getElementById("gateRange");
+const gateVal = document.getElementById("gateVal");
 const bpmAlt = document.getElementById("bpmAlt");
 const playBtn = document.getElementById("playBtn");
 const countBtn = document.getElementById("countBtn");
@@ -2361,6 +2424,9 @@ function buildGrid () {
 
       const stepsWrap = document.createElement("div");
       stepsWrap.className = "steps";
+      // 时间线本体。窄屏时它比窗口宽，靠 translateX 换页；宽屏时它撑满窗口。
+      const ptrack = document.createElement("div");
+      ptrack.className = "ptrack";
 
       const row = [];
       const perBeat = BEATS[state.beat].per;
@@ -2379,8 +2445,9 @@ function buildGrid () {
           beatEl.appendChild(btn);
           row.push(btn);
         }
-        stepsWrap.appendChild(beatEl);
+        ptrack.appendChild(beatEl);
       }
+      stepsWrap.appendChild(ptrack);
 
       track.appendChild(tHead);
       track.appendChild(stepsWrap);
@@ -2396,7 +2463,195 @@ function buildGrid () {
   refreshVarLabels();
   refreshPanUI();
   refreshDrumUI();
+
+  // 网格重建了，分页状态要重新套上：拍号或屏宽变了，页数也会变
+  buildPager();
+  fitSteps();
+  paintPage(curPage, true);
 }
+
+/* =========================================================
+   网格分页（窄屏）
+   为什么单位是「拍」而不是「小节」：
+   手机上一条轨道能用的净宽只有 290px 左右。16 格平分，每格 16.75px ——
+   比一个指尖小一大截，按下去经常同时碰到两格。想让每格到 34px，
+   一屏就只能放 8 格，在 4/4 里正好是 2 拍。所以翻页的单位是拍。
+   ========================================================= */
+let curPage = 0;
+let pagerDragging = false;
+let pagerEl = null, pagerRail = null, pagerThumb = null, pagerLab = null;
+
+// 一页几拍：6/8 的一大拍本身就是 6 格，再两拍一页会切在三分之一处，所以一拍一页
+function pageBeats () {
+  return BEATS[state.beat].per >= 6 ? 1 : 2;
+}
+
+function pagePlan () {
+  const per = BEATS[state.beat].per;
+  const beats = state.steps / per;
+  const n = pageBeats();
+  const pages = [];
+  for (let b = 0; b < beats; b += n) {
+    pages.push({ b0:b, b1:Math.min(b + n, beats), s0:b * per });
+  }
+  return pages;
+}
+
+function pagingOn () {
+  return window.innerWidth <= 760 && pagePlan().length > 1;
+}
+
+function pageOfStep (step) {
+  const plan = pagePlan();
+  for (let k = plan.length - 1; k >= 0; k--) if (step >= plan[k].s0) return k;
+  return 0;
+}
+
+function buildPager () {
+  // 复用同一个节点：buildGrid 每次会清空 gridEl，重建监听反而容易漏
+  if (!pagerEl) {
+    pagerEl = document.createElement("div");
+    pagerEl.className = "pager";
+    pagerLab = document.createElement("span");
+    pagerLab.className = "pager-lab";
+    pagerRail = document.createElement("div");
+    pagerRail.className = "pager-rail";
+    pagerThumb = document.createElement("div");
+    pagerThumb.className = "pager-thumb";
+    pagerRail.appendChild(pagerThumb);
+    pagerEl.appendChild(pagerLab);
+    pagerEl.appendChild(pagerRail);
+    bindPagerDrag();
+  }
+  gridEl.insertBefore(pagerEl, gridEl.firstChild);
+  updatePager();
+}
+
+function updatePager (freeThumb) {
+  const on = pagingOn();
+  pagerEl.classList.toggle("on", on);
+  if (!on) return;
+
+  const plan = pagePlan();
+  if (curPage >= plan.length) curPage = plan.length - 1;
+  if (curPage < 0) curPage = 0;
+
+  const p = plan[curPage];
+  pagerLab.textContent = (p.b1 - 1 === p.b0)
+    ? ("第 " + (p.b0 + 1) + " 拍")
+    : ("第 " + (p.b0 + 1) + "–" + p.b1 + " 拍");
+
+  if (freeThumb) return;
+  const n = plan.length;
+  pagerThumb.style.width = (100 / n) + "%";
+  pagerThumb.style.left = (curPage * 100 / n) + "%";
+}
+
+function paintPage (page, instant, freeThumb) {
+  const plan = pagePlan();
+
+  if (!pagingOn()) {
+    curPage = 0;
+    gridEl.querySelectorAll(".ptrack").forEach(t => { t.style.transform = ""; });
+    updatePager();
+    return;
+  }
+
+  curPage = Math.max(0, Math.min(page, plan.length - 1));
+  const b0 = plan[curPage].b0;
+
+  gridEl.querySelectorAll(".steps > .ptrack").forEach(trackEl => {
+    // 用起点那一拍的 offsetLeft 作为位移量：比手算「格宽 × 格数」可靠，
+    // 拍间隙、边框、缩放全都自动含进去
+    const anchor = trackEl.children[b0];
+    if (!anchor) return;
+    if (instant) trackEl.style.transition = "none";
+    trackEl.style.transform = "translateX(" + (-anchor.offsetLeft) + "px)";
+    if (instant) { void trackEl.offsetWidth; trackEl.style.transition = ""; }
+  });
+
+  updatePager(freeThumb);
+}
+
+/* 格子宽度：按「页内格数最多的一页」定一次，所有页共用，
+   否则翻到只有 4 格的页时格子会突然变宽，翻回来又缩，像在抖。 */
+function fitSteps () {
+  const wrap = gridEl.querySelector(".steps");
+  if (!wrap) return;
+
+  if (!pagingOn()) {
+    gridEl.style.removeProperty("--sw");
+    return;
+  }
+
+  const per = BEATS[state.beat].per;
+  let maxCells = 0;
+  pagePlan().forEach(p => { maxCells = Math.max(maxCells, (p.b1 - p.b0) * per); });
+
+  const wraps = wrap.clientWidth;
+  if (!wraps) return;
+
+  const beatsInPage = maxCells / per;
+  const gaps = (maxCells - beatsInPage) + (beatsInPage - 1) * 3;   // 拍内 1px、拍间 3px
+  const w = Math.floor((wraps - gaps) / maxCells);
+  // 上限 44：再宽就回到「一屏看不下」的老问题；下限 22：低于这个就是纯误触
+  gridEl.style.setProperty("--sw", Math.max(22, Math.min(44, w)) + "px");
+}
+
+// 播放时跟页：当前拍跑出屏幕就等于看不见，实时演奏时这是刚需
+function followPage (step) {
+  if (!pagingOn() || pagerDragging) return;
+  const k = pageOfStep(step);
+  if (k !== curPage) paintPage(k);
+}
+
+function bindPagerDrag () {
+  const ratioAt = e => {
+    const r = pagerRail.getBoundingClientRect();
+    return Math.max(0, Math.min(1, (e.clientX - r.left) / r.width));
+  };
+
+  pagerRail.addEventListener("pointerdown", e => {
+    pagerDragging = true;
+    pagerRail.classList.add("drag");
+    try { pagerRail.setPointerCapture(e.pointerId); } catch (_) {}
+    const t = ratioAt(e);
+    paintPage(Math.floor(t * pagePlan().length), false, true);
+    e.preventDefault();
+  });
+
+  pagerRail.addEventListener("pointermove", e => {
+    if (!pagerDragging) return;
+    const n = pagePlan().length;
+    const wPct = 100 / n;
+    const t = ratioAt(e);
+    // 拖动时滑块跟手，松手才吸附到页
+    pagerThumb.style.left = Math.max(0, Math.min(100 - wPct, t * 100 - wPct / 2)) + "%";
+    paintPage(Math.floor(Math.min(0.9999, t) * n), false, true);
+    e.preventDefault();
+  });
+
+  const up = () => {
+    if (!pagerDragging) return;
+    pagerDragging = false;
+    pagerRail.classList.remove("drag");
+    paintPage(curPage);
+  };
+  pagerRail.addEventListener("pointerup", up);
+  pagerRail.addEventListener("pointercancel", up);
+}
+
+// 转屏 / 分屏 / 拖窗口：格宽和页数都要重算。防抖是因为手机上转屏会连发好几次
+let pagerResizeTid = null;
+window.addEventListener("resize", () => {
+  if (!pagerEl) return;
+  if (pagerResizeTid) clearTimeout(pagerResizeTid);
+  pagerResizeTid = setTimeout(() => {
+    pagerResizeTid = null;
+    fitSteps();
+    paintPage(curPage, true);
+  }, 120);
+});
 
 function buildChordBar () {
   const wrap = document.createElement("div");
@@ -2751,13 +3006,45 @@ if (cpickEl) {
   });
 }
 
-function paintStep (partId, i, val) {
+function paintStep (partId, i, val, skipTails) {
   state.pattern[partId][i] = val;
   const el = stepEls[partId][i];
   if (el) {
     el.classList.toggle("on", val > 0);
     el.classList.toggle("accent", val > 0.9);
   }
+  if (!skipTails) paintTails(partId);
+}
+
+/* 时值可视化：每个音从自己那一格起，按「到下一击的间隔 × 时值」铺一条底条。
+   起音格只画本格那一截，跨过去的格子标 .tail 接着画。
+   最后一个音不绕回谱头 —— 绕回去会让人以为第一格也有音。 */
+function paintTails (partId) {
+  const row = stepEls[partId];
+  if (!row) return;
+  const n = state.steps;
+  const hits = [];
+  for (let i = 0; i < n; i++) if (state.pattern[partId][i] > 0) hits.push(i);
+
+  for (let i = 0; i < n; i++) {
+    row[i].classList.remove("tail");
+    row[i].style.removeProperty("--g");
+  }
+  if (!hits.length) return;
+
+  const g = state.gate;
+  hits.forEach((i, k) => {
+    const gap = (k + 1 < hits.length ? hits[k + 1] : n) - i;
+    const len = Math.max(0.3, gap * g);          // 再短也留一小截，否则看不出这里有音
+    row[i].style.setProperty("--g", String(Math.min(1, len)));
+    for (let j = 1, span = Math.ceil(len); j < span; j++) {
+      const idx = i + j;
+      if (idx >= n) break;
+      if (state.pattern[partId][idx] > 0) break;  // 下一击自己会画，别叠
+      row[idx].classList.add("tail");
+      row[idx].style.setProperty("--g", String(Math.min(1, len - j)));
+    }
+  });
 }
 
 /* ---- 单次撤销 ----
@@ -2819,7 +3106,8 @@ function doUndo () {
 
 function paintAll () {
   PARTS.forEach(pt => {
-    for (let i = 0; i < state.steps; i++) paintStep(pt.id, i, state.pattern[pt.id][i]);
+    for (let i = 0; i < state.steps; i++) paintStep(pt.id, i, state.pattern[pt.id][i], true);
+    paintTails(pt.id);          // 一行的尾巴统一算一次，不跟着每一格重算
   });
 }
 
@@ -3235,6 +3523,7 @@ function tick () {
   while (visQueue.length && visQueue[0].time <= now) {
     const ev = visQueue.shift();
     highlight(ev.step);
+    followPage(ev.step);       // 窄屏：当前拍跑出这一屏就跟过去，不然演奏时是盲的
     lastVisStep = ev.step;
     lastVisTime = ev.time;
     if (ev.pads) for (const id of ev.pads) flashPad(id);
@@ -4718,6 +5007,8 @@ function syncTransportUI () {
   volRange.value = Math.round(state.volume * 100);
   revRange.value = Math.round(state.reverb * 100);
   revVal.textContent = Math.round(state.reverb * 100);
+  gateRange.value = Math.round(state.gate * 100);
+  gateVal.textContent = Math.round(state.gate * 100) + "%";
   countBtn.classList.toggle("active", state.countIn);
   fadeBtn.classList.toggle("active", state.fade > 0);
   fadeBtn.textContent = state.fade > 0 ? "淡出 " + state.fade + "s" : "淡出关";
@@ -5227,6 +5518,7 @@ function setBeat (beat) {
   markStyle(-1);
   state.beat = beat;
   state.steps = BEATS[beat].steps;
+  curPage = 0;                 // 页是按拍切的，拍号一换旧页码就没意义了
 
   // 6/8 做不出十六分切分，原来选的型可能不再存在，退回单格
   if (!cellSet().some(c => c.id === state.cell)) state.cell = "one";
@@ -5335,6 +5627,14 @@ revRange.addEventListener("input", e => {
     audio.wet.gain.setTargetAtTime(state.reverb, audio.ctx.currentTime, 0.02);
   }
   revVal.textContent = e.target.value;
+  save();
+});
+
+// 时值只在下次发声/导出时生效，不需要停播放：已经排进队列的音照旧走完
+gateRange.addEventListener("input", e => {
+  state.gate = Number(e.target.value) / 100;
+  gateVal.textContent = e.target.value + "%";
+  PARTS.forEach(pt => paintTails(pt.id));
   save();
 });
 
@@ -6033,7 +6333,7 @@ function collectMidi (bars) {
                  + ((i % per) === per / 2 ? swingT : 0);
         for (const e of stepEvents(i, b)) {
           if (e.t === "d") {
-            drums.push({ tick:Math.round(at), dur:30, note:gmNoteOf(e.voice), vel:vel127(e.vel) });
+            drums.push({ tick:Math.round(at), part:e.part, note:gmNoteOf(e.voice), vel:vel127(e.vel) });
           } else if (e.t === "b") {
             bass.push({ tick:Math.round(at), dur:Math.max(10, Math.round(e.secs / secPerTick)),
                         note:Math.max(0, Math.min(127, e.note)), vel:vel127(e.vel) });
@@ -6048,6 +6348,21 @@ function collectMidi (bars) {
     }
   } finally {
     kickFlip = flip;             // 导出不该改变实时播放的五度交替
+  }
+
+  /* 鼓的时值 = 同一个鼓件相邻两击的间距 × 时值比例。
+     以前一律写 30 tick（96BPM 下 39ms），导进 DAW 用采样器播是一串断头音；
+     现在按真实节奏时值写，和网格上那条横条量的是同一个数。 */
+  const endTick = bars * steps * TICK_PER_STEP;
+  const byPart = {};
+  for (const d of drums) (byPart[d.part] = byPart[d.part] || []).push(d);
+  for (const k in byPart) {
+    const list = byPart[k].sort((a, b) => a.tick - b.tick);
+    for (let i = 0; i < list.length; i++) {
+      const next = i + 1 < list.length ? list[i + 1].tick : endTick;
+      const span = Math.max(TICK_PER_STEP, next - list[i].tick);
+      list[i].dur = Math.max(20, Math.round(span * state.gate));
+    }
   }
   return { drums:drums, bass:bass, pad:pad };
 }
@@ -6166,6 +6481,7 @@ function save () {
       stashPattern();
       localStorage.setItem(STORAGE_KEY, JSON.stringify({
         beat:state.beat, bpm:state.bpm, swing:state.swing, volume:state.volume, reverb:state.reverb,
+        gate:state.gate,
         countIn:state.countIn, fade:state.fade, focus:state.focus,
         bassKey:state.bassKey, bassProg:state.bassProg, customProg:state.customProg, drums:state.drums,
         transpose:state.transpose,
@@ -6195,6 +6511,7 @@ function load () {
     if (typeof d.swing === "number") state.swing = Math.min(70, Math.max(50, d.swing));
     if (typeof d.volume === "number") state.volume = d.volume;
     if (typeof d.reverb === "number") state.reverb = d.reverb;
+    if (typeof d.gate === "number") state.gate = Math.min(1, Math.max(0.3, d.gate));
     if (typeof d.countIn === "boolean") state.countIn = d.countIn;
     if (typeof d.fade === "number") state.fade = d.fade;
     if (typeof d.bassKey === "number" && KEYS[d.bassKey]) state.bassKey = d.bassKey;
