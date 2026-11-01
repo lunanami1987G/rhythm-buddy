@@ -2,6 +2,14 @@
 
 **一个双击就能打开的浏览器鼓机 / 伴奏机。单文件、零依赖、可离线。**
 
+<p align="left">
+  <img alt="version" src="https://img.shields.io/badge/version-10.0-ff9f43">
+  <img alt="license" src="https://img.shields.io/badge/license-MIT-4c9a2a">
+  <img alt="deps" src="https://img.shields.io/badge/dependencies-0-blue">
+  <img alt="build" src="https://img.shields.io/badge/build-none-blue">
+  <img alt="size" src="https://img.shields.io/badge/index.html-651%20KB-lightgrey">
+</p>
+
 不用装软件，不用注册，不用联网。下载一个 `index.html`，双击，就开始。
 
 <p align="center">
@@ -14,10 +22,25 @@
 
 练琴、弹唱、写歌的时候，很多时候只需要一个**能随手打开的节拍和伴奏**，而不是装一套 DAW。
 
-市面上的在线鼓机大多要联网、要登录、手机上排版全是横向滚动的表格。这个项目的目标很简单：**一个文件，手机和电脑都能用，断网也能用。**
+市面上的在线鼓机大多要联网、要登录，手机上排版全是横向滚动的表格。这个项目的目标很简单：**一个文件，手机和电脑都能用，断网也能用。**
 
 它有 9 层 13 轨鼓组 + 贝斯 + 和声垫，17 套风格预设，8 个打击垫可以实时敲，排好的编曲能直接导出成 MIDI 拿去 DAW 里继续做。
 还能导入自己的伴奏（mp3/wav），做**变速不变调**，或者反过来**变调不变速**——用不同调的歌配同一套鼓。
+
+<table>
+<tr><th width="160">项目</th><th>说明</th></tr>
+<tr><td><b>当前版本</b></td><td>10.0（2026-11-01）</td></tr>
+<tr><td><b>形态</b></td><td>单个 <code>index.html</code>，6886 行，所有音色/样式/逻辑内联</td></tr>
+<tr><td><b>依赖</b></td><td>无。不联网、不构建、不装包</td></tr>
+<tr><td><b>许可</b></td><td>MIT</td></tr>
+</table>
+
+## 目录
+
+- [在线使用](#在线使用) · [本地使用](#本地使用)
+- [功能](#功能) · [手机上怎么用](#手机上怎么用) · [键盘快捷键](#键盘快捷键)
+- [已知限制](#已知限制) · [版本](#版本) · [项目状态](#项目状态)
+- [技术实现](#技术实现) · [素材与致谢](#素材与致谢) · [许可](#许可)
 
 ## 在线使用
 
@@ -44,7 +67,7 @@ git clone https://github.com/lunanami1987/rhythm-buddy.git
 |---|---|
 | **鼓组** | 9 层、13 轨：沙铃、铃鼓、拍手、康加（2 轨）、箱鼓（2 轨）、鼓组（底鼓/军鼓/闭镲/开镲/强音镲/叮叮镲）。另有独立节拍器层 |
 | **音色** | 31 档可切换音色，覆盖 9 个部件（沙铃可换沙锤/卡巴萨，军鼓可换邦哥/响指…） |
-| **风格预设** | 17 套：民谣、弹唱、慢歌、华尔兹、6/8 民歌、放克、摇摆、**布鲁斯**、雷鬼、City、电子、波萨、拉丁、桑巴、进行曲、三拍爵士 |
+| **风格预设** | 17 套：民谣、弹唱、慢歌、华尔兹、6/8 民歌、慢 6/8、放克、摇摆、**布鲁斯**、雷鬼、City、电子、波萨、拉丁、桑巴、进行曲、三拍爵士 |
 | **打法** | 每层多种节奏型（八分/十六分/反拍/切分/四踩…），也可自己在网格上点 |
 | **贝斯** | 7 个调 × 8 套和弦进行（6 套四小节 + 4536251 这类八小节）× 6 种演奏型 × 4 种音色。和弦条 8 格，可逐格自己排 |
 | **和声垫** | 按和弦进行铺底，适合一个人弹唱时补声部 |
@@ -87,8 +110,29 @@ git clone https://github.com/lunanami1987/rhythm-buddy.git
 - **导出只有 MIDI**，不导音频。加 MP3 编码器会破坏「单文件零依赖」；改导 WAV 则要把整套发声跑一遍离线渲染，手机上慢、内存也吃紧。要成品音频：把 MIDI 拖进 DAW 换音源，或用内录
 - **MIDI 不含载入的旋律**。那是外部音频文件，转不成音符。MIDI 只记鼓机、贝斯、和声垫这三样
 - **长音频吃内存**。一首 4 分钟的歌在 48kHz 立体声下，原始 + 移调后两份约 180MB，处理峰值可能到 300MB。低端手机上（3GB 内存）会比较吃力
+- **手机上只能看 2 拍**。16 格一眼看全是鼓机本来的价值，但 6 英寸的屏幕放不下 34 像素宽的 16 格，只能二选一。要全貌用横屏
 - **不做多轨录音**，不做 song mode（整曲编排）。这是节拍器/伴奏工具，不是 DAW
 - **测试覆盖有限**：主要在 Chromium 上开发和验证；iOS Safari 做了针对性适配（静音键提示、全屏、Worker 降级），但没有在全部机型上逐一实测。Firefox 理论上可用，未专门适配
+
+## 版本
+
+10.0 是在一轮小范围试用反馈之后定的第一个大版本。十个版本的演进过程、每个版本的取舍理由，
+以及**被否掉的方案清单**，都写在 **[docs/VERSION-HISTORY.md](docs/VERSION-HISTORY.md)**。
+
+| 版本 | 主题 | 一句话 |
+|---|---|---|
+| **10.0** | 和弦补齐八格 | 4536251 补到八个和弦，终止落 vi 而不是 I |
+| 9.0 | 反馈修复 | 撤掉加过头的自动翻页，修掉"关着的层还在闪" |
+| 8.0 | 窄屏分页 | 手机每屏 2 拍 8 格，每格 34 像素 |
+| 7.0 | 音符时值 | 鼓音不再是一律 39ms 的断头音，网格上能看到长度 |
+| 6.0 | 表现力扩容 | 七小节进行、布鲁斯风格、WAV 改 MIDI |
+| 5.0 | 算法重写 | WSOLA 换成相位声码器，移调不再"滋滋"响 |
+| 4.0 | 内嵌采样 | 14 件 CC0 原声鼓进代码，仍是一个文件 |
+| 3.0 | 编辑与导出 | 撤销、清轨、第一次能把编曲带走 |
+| 2.0 | 音色可换 | 31 档音色，四层不再只有一种声音 |
+| 1.0 | 能敲出声 | 打击垫、力度感应、声像 |
+
+完整更新日志见 [CHANGELOG.md](CHANGELOG.md)。
 
 ## 项目状态
 
@@ -112,11 +156,11 @@ git clone https://github.com/lunanami1987/rhythm-buddy.git
 - **音色合成**：全部程序化合成，不依赖采样库。鼓组部分额外内嵌了 14 件 CC0 采样，按前 150ms RMS 逐件配平响度
 - **移调**：**相位声码器**（STFT，2048 点窗 / hop 512 / Hann 窗，逐频点独立推进相位）+ 带限重采样。跑在 Blob Worker 里，主线程全程不阻塞
 
-> 为什么不用 WSOLA：时间伸缩时相邻帧必须错开 `HS×(1/ratio−1)` 个采样，这个错位对不同频率造成的相位偏移量不同，高频累积到接近一整周就会相干抵消。实测高频衰减 −3.4dB、低频堆积 +3.4dB（抖动 12dB），听感就是"滋滋啦啦"。调参数救不回来，这是算法本质。
+> 为什么不用 WSOLA：时间伸缩时相邻帧必须错开 `HS×(1/ratio−1)` 个采样，这个错位对不同频率造成的相位偏移量不同，高频累积到接近一周就会相干抵消。实测高频衰减 −3.4dB、低频堆积 +3.4dB（抖动 12dB），听感就是"滋滋啦啦"。调参数救不回来，这是算法本质。
 
 - **导出**：手拼 SMF（format 1 / PPQ 480），不引任何库。音符直接取自 `stepEvents()` —— 和播放共用同一份逻辑，改节奏型不会出现「听着对、导出来错」。摇摆偏移按 tick 换算写进事件，拖进 DAW 后节奏和页面里一致。鼓的时值取「同件乐器相邻两击的 tick 间距 × `state.gate`」，网格上那条横线量的也是这个数
 - **窄屏分页**：一条轨道套两层 —— `.steps` 是一屏宽的窗口（`overflow:hidden`），`.ptrack` 才是时间线本身。窄屏时格子固定宽、按「拍」切页，翻页就是给 `.ptrack` 加 `translateX`。位移量取起点那一拍的 `offsetLeft`，拍间隙和缩放自动含进去，不用手算格宽
-- **单文件**：六千多行里的所有音色、样式、逻辑全部内联，零外部请求
+- **单文件**：6886 行里所有音色、样式、逻辑全部内联，零外部请求。鼓采样以 base64 内嵌（约 340KB）
 
 ## 素材与致谢
 
@@ -137,9 +181,13 @@ git clone https://github.com/lunanami1987/rhythm-buddy.git
 
 A single-file browser drum machine / backing-track player. No install, no build, no network — just open `index.html`.
 
-9 layers / 13 tracks, 8 velocity-sensitive pads, 16 style presets, bass and chord pads, plus an imported-audio player with independent tempo and pitch control (phase vocoder).
+**Current version: 10.0.** 9 layers / 13 tracks, 8 velocity-sensitive pads, 17 style presets, bass and chord pads, plus an imported-audio player with independent tempo and pitch control (phase vocoder).
+
+Arrange a groove, then export it as **MIDI** (drums / bass / chord pad on three tracks, GM channel 10 for drums) and keep working in any DAW.
 
 Works on desktop and mobile. Everything is inlined: zero external requests, fully offline.
+
+The full iteration history (1.0 → 10.0), including design trade-offs and rejected approaches, is in [docs/VERSION-HISTORY.md](docs/VERSION-HISTORY.md) (Chinese).
 
 **Status:** maintained on a best-effort basis. Issues and PRs are welcome but response time is not guaranteed.
 
