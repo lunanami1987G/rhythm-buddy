@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>节奏伙伴 · 虚拟节奏机</title>
-<meta name="description" content="单文件浏览器鼓机 / 伴奏机。9 层 13 轨、8 个打击垫、16 套风格预设，可导入伴奏独立变速变调。零依赖，可离线，手机也能用。">
+<meta name="description" content="单文件浏览器鼓机 / 伴奏机。9 层 13 轨、8 个打击垫、17 套风格预设，可导入伴奏独立变速变调，编曲导出 MIDI。零依赖，可离线，手机也能用。">
 <meta name="theme-color" content="#0c0e12">
 <!-- 加到 iOS 主屏幕后全屏运行，不显示 Safari 地址栏 -->
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -13,7 +13,7 @@
 <!-- 分享卡片（微信/Twitter 等不会渲染 SVG 图标，这里用仓库里的实际截图） -->
 <meta property="og:type" content="website">
 <meta property="og:title" content="节奏伙伴 · 单文件浏览器鼓机">
-<meta property="og:description" content="9 层 13 轨鼓组 + 贝斯 + 和声垫，8 个打击垫，16 套风格。可导入伴奏独立变速变调。零依赖，离线可用。">
+<meta property="og:description" content="9 层 13 轨鼓组 + 贝斯 + 和声垫，8 个打击垫，17 套风格。可导入伴奏独立变速变调，编曲导出 MIDI。零依赖，离线可用。">
 <meta property="og:image" content="https://lunanami1987.github.io/rhythm-buddy/assets/screenshot-desktop.png">
 <!-- 图标内联成 data URI，避免额外文件请求（也没有 favicon 404） -->
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='15' fill='%230c0e12'/%3E%3Ccircle cx='32' cy='38' r='13' fill='none' stroke='%23ff9f43' stroke-width='4.5'/%3E%3Cpath d='M32 15v9M18.5 21.5l5 6.5M45.5 21.5l-5 6.5' stroke='%23ff9f43' stroke-width='4.5' stroke-linecap='round'/%3E%3C/svg%3E">
@@ -862,15 +862,16 @@
   <div class="toolrow" id="toolRow">
     <button class="btn" id="undoBtn" type="button" disabled title="没有可撤销的改动">撤销</button>
     <span class="bar"></span>
-    <span>导出音频</span>
+    <span>导出</span>
     <select class="tool-sel" id="expBars" title="导出多少个小节">
       <option value="1">1 小节</option>
       <option value="2">2 小节</option>
       <option value="4" selected>4 小节</option>
+      <option value="7">7 小节</option>
       <option value="8">8 小节</option>
       <option value="16">16 小节</option>
     </select>
-    <button class="btn" id="expBtn" type="button" title="把当前编曲渲染成 WAV 文件（离线渲染，比实时快）">导出 WAV</button>
+    <button class="btn" id="expBtn" type="button" title="把当前编曲导出成 MIDI：鼓 / 贝斯 / 和声垫分三个音轨，可在 DAW 里换音源继续编">导出 MIDI</button>
     <span class="tool-note" id="toolNote"></span>
   </div>
 
@@ -886,7 +887,9 @@
   </div>
 
   <div class="hint">
-    <b>怎么用</b>：左边圆点按亮即该层发声，可同时开好几层叠加。用 <b>◀ ▶</b> 切换这一层的变奏，几秒钟就能配出伴奏。再点格子可微调，改过之后这一层显示「自定义」。手机上直接在格子上上下滑就能滚页面，不会误改；想改哪一格，轻点一下即可。底下的<b>风格</b>是整套预设（拍号 + 速度 + 各层打法），共 16 套：民谣、弹唱、慢歌、华尔兹、6/8 民歌、慢 6/8、放克、摇摆、雷鬼、City、电子、波萨、拉丁、桑巴、进行曲、三拍爵士。点一下换一整套，套完之后还能再改；已经选中的那个再点一次就是取消，退回你刚才编好的样子。
+    <b>怎么用</b>：左边圆点按亮即该层发声，可同时开好几层叠加。用 <b>◀ ▶</b> 切换这一层的变奏，几秒钟就能配出伴奏。再点格子可微调，改过之后这一层显示「自定义」。手机上直接在格子上上下滑就能滚页面，不会误改；想改哪一格，轻点一下即可。底下的<b>风格</b>是整套预设（拍号 + 速度 + 各层打法），共 17 套：民谣、弹唱、慢歌、华尔兹、6/8 民歌、慢 6/8、放克、摇摆、布鲁斯、雷鬼、City、电子、波萨、拉丁、桑巴、进行曲、三拍爵士。点「布鲁斯」会自动把摇摆推到 66%（三连感），这是 shuffle 的定义性特征，手动拖到别的位置就不对味了。点一下换一整套，套完之后还能再改；已经选中的那个再点一次就是取消，退回你刚才编好的样子。
+    <br>
+    <b>导出 MIDI</b>：工具行右边那个按钮会把当前编曲写成 <b>.mid</b> 文件——鼓、贝斯、和声垫分成三个音轨，鼓走 GM 打击乐通道，拖进任何 DAW 都能直接换音源、改速度、接着往下编。导多少小节可选，<b>选 7 正好是一个完整的 4536251 循环</b>。MIDI 只记编曲、<b>不含载入的旋律</b>（那是音频，转不成音符），想要带伴奏的成品还是直接在页面里放；导出几毫秒就完事，不用停播放。
     <br>
     <b>一拍节奏型</b>：控制行右端的「节奏型」按钮，可选 <b>直八 · 直十六 · 前8后16 · 前16后8 · 附点八 · 反附点</b>。选中后，点格子里任意一格，就直接把<b>这一拍</b>按该型铺好（第 1 格加重音），不用再一格一格点；横着一拖，整行按拍铺满。同一拍再点一次就是清空，点错了立刻撤得回来。选「单格」恢复原来的逐格编辑。6/8 一格就是八分，切不出十六分，所以只留<b>直八 · 全八</b>两档。
     <br>
@@ -901,7 +904,7 @@
     <br>
     <b>贝斯</b>：按 <b>8</b> 或点圆点开启，按小节走根音（65–130Hz，正好补吉他的低频空洞）。点调名换调、点「1564」这类数字换整套和弦进行；<b>◀ ▶</b> 选低音型，最后一种「跟底鼓」会让贝斯跟着底鼓的节奏走。
     <br>
-    <b>自己排和弦</b>：点和弦条上任意一个格子，就能单独给那一小节挑和弦——七个级数任选，下面标着实际和弦名（跟着当前调走），比如 <b>Ⅵ Am / Ⅴ G / Ⅳ F / Ⅴ G</b> 点四下就是 6545，想 6542 就把最后一格点成 <b>Ⅱ Dm</b>。需要大三、小三对调的（像小调里把 Ⅴ 弹成大三），点面板里的「大三 / 小三」。改完芯片会显示「自定」，再点它会轮回到预设的第一套。面板不自动关，可以一边放着一边换着听。
+    <b>自己排和弦</b>：和弦条有 <b>7 格</b>，一个小节一格。点任意一格就能单独给那一小节挑和弦——七个级数任选，下面标着实际和弦名（跟着当前调走），比如 <b>Ⅵ Am / Ⅴ G / Ⅳ F / Ⅴ G</b> 点四下就是 6545，想 6542 就把最后一格点成 <b>Ⅱ Dm</b>。七格刚好放得下 <b>4536251</b> 这种七个和弦走完才回到主和弦的流行进行（预设里就有，可以直接点）；老的四小节进行照旧四小节循环，两种长度混着用不冲突。需要大三、小三对调的（像小调里把 Ⅴ 弹成大三），点面板里的「大三 / 小三」。改完芯片会显示「自定」，再点它会轮回到预设的第一套。面板不自动关，可以一边放着一边换着听。
     <br>
     <b>旋律</b>：点「载入旋律」选一段 <b>mp3 / wav / m4a</b>，或者直接把文件拖进页面，载入后会自动试听两秒（停住是正常的，说明文件已就绪），点播放才正式跟着鼓机走。「进入」可以选同时开始，也可以让鼓机先空打 1 / 2 / 4 小节再进，方便留前奏。音量、倍速、循环都能单独调；点进度条可跳转。改鼓机速度时，只要「跟随鼓机」开着，旋律会自动按同一比例跟上；关掉它，才需要自己拖「倍速」对齐。文件只在本地播放、不会上传，刷新页面后需要重新载入。如果某个 mp3 载入后显示<b>「解码模式」</b>，说明浏览器的播放组件拿它没办法，软件改用自己解码在播，能听但倍速会变调；mp3 只响一两秒就停的，也会自动切到这个模式重放。遇到「这是加密音乐文件」，说明下载的是 ncm / qmc / kgm 这类加密格式，需要先在音乐客户端里导出成普通 MP3。遇到<b>「这是 WMA」</b>，说明后缀虽然写着 mp3、内容其实是 WMA，只能先用格式工厂之类的工具转成 MP3。<br><b>对速与移调</b>：「跟随鼓机」开着时，改鼓机 BPM 配乐会按同一比例跟着变，浏览器保调、不会变成花腔；想要别的比例，关掉它直接拖「倍速」。点 <b>− / +</b> 一次移半音，配乐、贝斯、和声垫一起换调，范围 ±6。配乐要重算一遍：4 分钟的歌在电脑上约 8 秒，手机上更久，处理时名字那里会显示百分比；重算期间配乐照常播放，算完交叉淡化切过去，不会中断也不会掉拍。拖动进度条松手后，鼓机的小节线会回到这一拍重新对齐，两边不会越走越散。
     <br>
@@ -1878,7 +1881,10 @@ const LAYERS = [
         { n:"桑巴", p:{ kick:[0,3,6,10,12], snare:[4,12], hatC:[0,2,4,6,8,10,12,14] } },
         { n:"慢歌", p:{ kick:[0,10], snare:[8], hatC:[0,2,4,6,8,10,12,14] } },
         { n:"进行曲", p:{ kick:[0,8], snare:[0,4,8,12], hatC:[0,2,4,6,8,10,12,14] } },
-        { n:"电子", p:{ kick:[0,4,8,12], snare:[4,12], hatO:[2,6,10,14] } }
+        { n:"电子", p:{ kick:[0,4,8,12], snare:[4,12], hatO:[2,6,10,14] } },
+        // 布鲁斯 shuffle：镲走直八分，靠 66% 摇摆把每拍后半推成三连，
+        // 这才是 shuffle 的成因。写死成 0,3,4,7 那种硬位置反而摇不动。
+        { n:"布鲁斯", p:{ kick:[0,6,8], snare:[4,12], hatC:[0,2,4,6,8,10,12,14] }, acc:{ hatC:[0,4,8,12] } }
       ],
       "3/4":[
         { n:"华尔兹", p:{ kick:[0], snare:[4,8], hatC:[0,2,4,6,8,10] } },
@@ -1973,14 +1979,48 @@ const KEYS = [
 ];
 
 // d = 相对主音的半音偏移，q = 和弦性质（只影响显示，贝斯取根音）
+// 进行长度不写死：每套自带 d 数组，4 小节和 7 小节可以混着用。
+// rootMidi / chordThird / chordName 全都按 p.d.length 取模，所以加一套长的不用改逻辑。
 const PROGS = [
   { n:"I–V–vi–IV",    tag:"1564", d:[0,7,9,5],   q:["","","m",""] },
   { n:"I–vi–IV–V",    tag:"1645", d:[0,9,5,7],   q:["","m","",""] },
   { n:"I–IV–V–I",     tag:"1451", d:[0,5,7,0],   q:["","","",""]  },
   { n:"vi–IV–I–V",    tag:"6415", d:[9,5,0,7],   q:["m","","",""] },
   { n:"i–VI–III–VII", tag:"m1637", d:[0,8,3,10], q:["m","","",""] },
-  { n:"i–iv–v–i",     tag:"m1451", d:[0,5,7,0],  q:["m","m","m","m"] }
+  { n:"i–iv–v–i",     tag:"m1451", d:[0,5,7,0],  q:["m","m","m","m"] },
+  // —— 七小节 ——
+  // 4536251：七个和弦走完才回到主和弦，比 1564 长一大截，
+  // 适合主歌一句唱不完、需要更晚落回 I 的流行歌。
+  { n:"IV–V–iii–vi–ii–V–I", tag:"4536251", d:[5,7,4,9,2,7,0], q:["","","m","m","m","",""] },
+  { n:"iv–V–III–VII–ii–V–i", tag:"m4536251", d:[5,7,3,10,2,7,0], q:["m","","","","m","","m"] }
 ];
+
+// 自定义槽固定 7 格：点任意一套预设进来，短的按循环填满，长的截到 7，
+// 这样「自己排」永远有 7 个位置，不会因为继承的预设只有 4 格就少三格。
+const CUSTOM_LEN = 7;
+
+function fitCustom (d, q) {
+  const out = [];
+  const L = d.length || 1;
+  for (let i = 0; i < CUSTOM_LEN; i++) {
+    const k = i % L;
+    out.push({ s: d[k], m: (q && q[k] === "m") ? 1 : 0 });
+  }
+  return out;
+}
+
+// 老存档里的自定义进行只有 4 格，直接补 0 会让第 5 格突变成主和弦；
+// 按原长度循环填满，听感才和升级前一致（1564 → 1564 156，第 5 格仍是 I）。
+function normalizeCustom (arr) {
+  const src = (Array.isArray(arr) ? arr : []).filter(c => c && typeof c.s === "number");
+  if (!src.length) return fitCustom([0, 7, 9, 5], ["", "", "m", ""]);
+  const out = [];
+  for (let i = 0; i < CUSTOM_LEN; i++) {
+    const c = src[i % src.length];
+    out.push({ s: ((Math.round(c.s) % 12) + 12) % 12, m: c.m ? 1 : 0 });
+  }
+  return out;
+}
 
 const BASS_STYLES = ["长音", "二分", "根五", "走动", "附点", "跟底鼓"];
 
@@ -2033,7 +2073,7 @@ function progOf (idx) {
 // 把某套预设原样搬进自定义槽，再让用户继续改
 function progToCustom (idx) {
   const p = PROGS[idx] || PROGS[0];
-  state.customProg = p.d.map((s, i) => ({ s: s, m: p.q[i] === "m" ? 1 : 0 }));
+  state.customProg = fitCustom(p.d, p.q);
 }
 
 // 级数 + 是否小三 → 和弦名（跟着调与整体移调走）
@@ -2105,7 +2145,8 @@ const state = {
   playing:false,
   pattern:{}, layers:{},
   bassKey:0, bassProg:0,               // bassProg = -1 表示用 customProg 自己排的进行
-  customProg:[ { s:0, m:0 }, { s:7, m:0 }, { s:9, m:1 }, { s:5, m:0 } ],
+  customProg:[ { s:0, m:0 }, { s:7, m:0 }, { s:9, m:1 }, { s:5, m:0 },
+               { s:0, m:0 }, { s:7, m:0 }, { s:9, m:1 } ],
   transpose:0,                         // 整体移调（半音）：配乐 + 贝斯 + 和声垫
   drums:{ kick:0, snare:0, hatC:0, hatO:0 },
   bassTone:0, padTone:0,               // 贝斯/和声垫音色（BASS_TONES / PAD_TONES 下标）
@@ -3068,33 +3109,25 @@ function voiceOf (part) {
 
 let kickFlip = 0;
 
-function scheduleStep (i, time, bar) {
+/* 某一格该响什么 —— 从发声里拆出来的纯逻辑。
+   scheduleStep 拿它去发声，MIDI 导出拿它去记谱，两边共用一份：
+   以后改节奏型不会出现「听着对、导出来错」。
+   副作用只有 kickFlip++（贝斯跟底鼓的五度交替），导出前存一份、导完还原。 */
+function stepEvents (i, bar) {
   const sd = stepDur();
-  let when = time;
-
   const per = BEATS[state.beat].per;
-  if (state.swing > 50 && (i % per) === per / 2) {
-    // 50→0、66.7→三连（0.667 格）、70→0.8 格。夹在 0.8 以内：
-    // 再多反拍就会顶到后一格上，变成同一时刻双击
-    when += Math.min(0.8, (state.swing - 50) / 20 * 0.8) * sd;
-  }
+  const ev = [];
 
-  const fired = [];
   for (const layer of LAYERS) {
     const st = state.layers[layer.id];
     if (!st.on || !layer.parts.length) continue;
     for (const part of layer.parts) {
       const vel = state.pattern[part.id][i];
-      if (vel > 0) {
-        audio.hit(voiceOf(part), when, vel * st.gain, st.pan ? st.pan / 100 : 0);
-        if (PAD_OF[part.id]) fired.push(part.id);    // 顺手点亮对应那只垫子
-      }
+      if (vel > 0) ev.push({
+        t:"d", part:part.id, voice:voiceOf(part),
+        vel: vel * st.gain, pan: st.pan ? st.pan / 100 : 0
+      });
     }
-  }
-
-  if (state.layers.metro.on) {
-    const unit = BEATS[state.beat].unit;
-    if (i % unit === 0) audio.click(when, i === 0 ? 1 : 0.6);
   }
 
   // ---- 贝斯 ----
@@ -3106,12 +3139,11 @@ function scheduleStep (i, time, bar) {
       // 跟底鼓：底鼓响就补一个根音，五度交替
       if (state.pattern.kick[i] > 0) {
         const deg = (kickFlip++ % 2) ? 7 : 0;
-        audio.bassNote(when, root + deg, sd * 1.9, 0.58 * amp);
+        ev.push({ t:"b", note:root + deg, vel:0.58 * amp, secs:sd * 1.9 });
       }
     } else {
-      const per = BEATS[state.beat].per;
       for (const n of bassNotes(bs.var, state.steps, per)) {
-        if (n.s === i) audio.bassNote(when, root + n.deg, n.len * sd * 0.95, 0.58 * amp);
+        if (n.s === i) ev.push({ t:"b", note:root + n.deg, vel:0.58 * amp, secs:n.len * sd * 0.95 });
       }
     }
   }
@@ -3127,10 +3159,41 @@ function scheduleStep (i, time, bar) {
       : [base, base + third, base + 7];
 
     if (pd.var === 1) {
-      if (i % per === 0) audio.padChord(when, tones, sd * per * 0.9, 0.22 * pd.gain);
+      if (i % per === 0) ev.push({ t:"p", notes:tones, vel:0.22 * pd.gain, secs:sd * per * 0.9 });
     } else if (i === 0) {
-      audio.padChord(when, tones, sd * state.steps * 0.97, 0.24 * pd.gain);
+      ev.push({ t:"p", notes:tones, vel:0.24 * pd.gain, secs:sd * state.steps * 0.97 });
     }
+  }
+
+  return ev;
+}
+
+function scheduleStep (i, time, bar) {
+  const sd = stepDur();
+  let when = time;
+
+  const per = BEATS[state.beat].per;
+  if (state.swing > 50 && (i % per) === per / 2) {
+    // 50→0、66.7→三连（0.667 格）、70→0.8 格。夹在 0.8 以内：
+    // 再多反拍就会顶到后一格上，变成同一时刻双击
+    when += Math.min(0.8, (state.swing - 50) / 20 * 0.8) * sd;
+  }
+
+  const fired = [];
+  for (const e of stepEvents(i, bar)) {
+    if (e.t === "d") {
+      audio.hit(e.voice, when, e.vel, e.pan);
+      if (PAD_OF[e.part]) fired.push(e.part);    // 顺手点亮对应那只垫子
+    } else if (e.t === "b") {
+      audio.bassNote(when, e.note, e.secs, e.vel);
+    } else {
+      audio.padChord(when, e.notes, e.secs, e.vel);
+    }
+  }
+
+  if (state.layers.metro.on) {
+    const unit = BEATS[state.beat].unit;
+    if (i % unit === 0) audio.click(when, i === 0 ? 1 : 0.6);
   }
 
   visQueue.push({ step: i, time: when, bar: bar, pads: fired });
@@ -5350,6 +5413,8 @@ const STYLES = [
   // —— 律动类 ——
   { name:"放克",   beat:"4/4", bpm:104, on:{ shaker:1, clap:2, drums:4 } },
   { name:"摇摆",   beat:"4/4", bpm:104, on:{ drums:8 }, gain:{ drums:0.7 } },
+  // swing 只在这套里写死 66%：三连感是布鲁斯的定义性特征，靠用户自己拖两头不对味
+  { name:"布鲁斯", beat:"4/4", bpm:96,  swing:66, on:{ drums:14 }, gain:{ drums:0.7 } },
   { name:"雷鬼",   beat:"4/4", bpm:74,  on:{ shaker:0, drums:7 }, gain:{ drums:0.7, shaker:0.65 } },
   { name:"City",   beat:"4/4", bpm:108, on:{ shaker:1, drums:9 }, gain:{ drums:0.66, shaker:0.6 } },
   { name:"电子",   beat:"4/4", bpm:124, on:{ clap:0, drums:13 }, gain:{ drums:0.66 } },
@@ -5395,6 +5460,8 @@ function applyStyle (i) {
   state.beat = st.beat;
   state.steps = BEATS[st.beat].steps;
   state.bpm = st.bpm;
+  // 只有写了 swing 的风格才动摇摆量，其余保持用户自己拖到的位置，不硬拽回 50
+  if (typeof st.swing === "number") state.swing = st.swing;
 
   LAYERS.forEach(l => {
     if (l.id === "bass" || l.id === "pad") return;
@@ -5522,14 +5589,7 @@ function restore (snap) {
     state.padTone = Math.max(0, Math.min(PAD_TONES.length - 1, Math.round(snap.padTone)));
   }
   if (Array.isArray(snap.customProg) && snap.customProg.length) {
-    const cp = [];
-    for (let i = 0; i < 4; i++) {
-      const c = snap.customProg[i];
-      cp.push(c && typeof c.s === "number"
-        ? { s: ((Math.round(c.s) % 12) + 12) % 12, m: c.m ? 1 : 0 }
-        : { s: 0, m: 0 });
-    }
-    state.customProg = cp;
+    state.customProg = normalizeCustom(snap.customProg);
   }
   if (typeof snap.transpose === "number") state.transpose = Math.max(-6, Math.min(6, Math.round(snap.transpose)));
   if (snap.drums) {
@@ -5776,14 +5836,9 @@ function sanitizeArchive (raw) {
     customProg: [], drums: {}, layers: {}, pattern: {}, partVoice: {}
   };
 
-  // 自定义进行：四小节，每项「半音 + 是否小三」，越界一律夹回来
+  // 自定义进行：七小节，每项「半音 + 是否小三」，越界一律夹回来
   const cpIn = Array.isArray(raw.customProg) ? raw.customProg : [];
-  for (let i = 0; i < 4; i++) {
-    const c = cpIn[i];
-    snap.customProg.push(c && typeof c.s === "number"
-      ? { s: ((Math.round(num(c.s, -12, 24, 0)) % 12) + 12) % 12, m: c.m ? 1 : 0 }
-      : { s: [0, 7, 9, 5][i], m: [0, 0, 1, 0][i] });
-  }
+  snap.customProg = normalizeCustom(cpIn);
 
   Object.keys(DRUM_SETS).forEach(k => {
     const v = raw.drums ? raw.drums[k] : undefined;
@@ -5901,131 +5956,167 @@ document.addEventListener("keydown", e => {
 });
 
 /* =========================================================
-   七、导出音频
+   MIDI 导出
    ---------------------------------------------------------
-   不是「录一遍」：MediaRecorder 只能实时录、录多久就得播多久，
-   出来还是 webm。这里用 OfflineAudioContext 把编曲重跑一遍，
-   速度只受 CPU 限制，拿到的直接是 16bit PCM WAV，
-   拖进任何 DAW 都能用。
-
-   做法是把 audio 上的 ctx 和四条总线临时换成离线版的：
-   所有发声函数只认 this.ctx / this.bus()，换完之后它们自然就
-   画到离线图里，一行音色代码都不用改。
+   手拼 SMF（standard MIDI file, format 1），不引任何库。
+   为什么不再导音频：这个工具的用处是「排一段编曲拿去用」，
+   而 WAV 是死的 —— 要换鼓音源、改速度、挪一段，只能拿 MIDI 重排。
+   想听成品直接在页面里播就行，耳机里的东西比文件更即时。
+   音符全部来自 stepEvents()，和耳朵听到的是同一份逻辑。
    ========================================================= */
-function buildOfflineGraph (off) {
-  const master = off.createGain();
-  master.gain.value = audio.master ? audio.master.gain.value : 0.78;
+const PPQ = 480;                     // 每个四分音符的 tick 数，DAW 的通用值
+const TICK_PER_STEP = PPQ / 4;       // 16 分网格 → 120
 
-  const comp = off.createDynamicsCompressor();
-  comp.threshold.value = -10; comp.knee.value = 12;
-  comp.ratio.value = 3.5; comp.attack.value = 0.004; comp.release.value = 0.18;
-  master.connect(comp); comp.connect(off.destination);
+// GM 打击乐（channel 10）。挑最接近的那一档就够：
+// DAW 里换成别的鼓音源，同一个音高会自动落成对应音色。
+const GM_DRUM = {
+  shaker:70, maracas:70, cabasa:69, brushShake:70,
+  tamb:54, tambHead:54, claves:75, triangle:81,
+  clap:39, snap:39, clapGroup:39,
+  bongo:60, bongoL:61,
+  congaH:63, congaL:64, timbale:65,
+  tomHi:50, tomMid:47, lowTom:45,
+  cajon:37, cajonDeep:35, floorTom:43, tomFloor:41,
+  slap:37, slapBright:37, woodBlock:76,
+  crashSm:49, crashHs:57, rideSm:51, rbellSm:53
+};
 
-  const bassBus = off.createGain();
-  bassBus.gain.value = 1;
-  bassBus.connect(master);
+// 底鼓/军鼓/镲的音色变体统一落到 GM 主档，
+// 只有「边击」和「原声底鼓」在 GM 里有更贴切的位置，单独指过去
+const DRUM_SLOT_NOTE = { "snare:9":37, "kick:7":35, "kick:8":35 };
 
-  const drumBus = off.createGain();
-  drumBus.gain.value = 1;
-
-  const dry = off.createGain();
-  drumBus.connect(dry); dry.connect(master);
-
-  const conv = off.createConvolver();
-  conv.buffer = makeIR(off, 1.5, 2.6);
-  const wet = off.createGain();
-  wet.gain.value = audio.wet ? audio.wet.gain.value : 0.15;
-  drumBus.connect(conv); conv.connect(wet); wet.connect(master);
-
-  return { master:master, bassBus:bassBus, drumBus:drumBus, wet:wet };
+function gmNoteOf (voice) {
+  const c = voice.indexOf(":");
+  if (c > 0) {
+    if (DRUM_SLOT_NOTE[voice] !== undefined) return DRUM_SLOT_NOTE[voice];
+    const base = voice.slice(0, c);
+    if (base === "kick") return 36;
+    if (base === "snare") return 38;
+    if (base === "hatC") return 42;
+    if (base === "hatO") return 46;
+    return 36;
+  }
+  return GM_DRUM[voice] !== undefined ? GM_DRUM[voice] : 38;
 }
 
-async function renderMix (bars) {
-  ensureAudio();
-  if (!audio.ctx) throw new Error("音频还没启动");
+function vel127 (v) {
+  const x = Math.round((v || 0) * 127);
+  return x < 1 ? 1 : (x > 127 ? 127 : x);
+}
 
-  // samplesReady 只表示「已经开始解码」，真正的完成标志是 SAMPLES 里有没有 buffer。
-  // 没解完时 sampleHit 会静默退回合成音色，导出来的就不是你试听时听到的那一声。
-  const need = Object.keys(SAMPLES_B64).length;
-  for (let w = 0; w < 40 && Object.keys(SAMPLES).length < need; w++) {
-    await new Promise(r => setTimeout(r, 50));
-  }
+// MIDI 的可变长数值：每字节 7 位，最高位当续接标记
+function vlq (n) {
+  const out = [n & 0x7F];
+  n = Math.floor(n / 128);
+  while (n > 0) { out.unshift((n & 0x7F) | 0x80); n = Math.floor(n / 128); }
+  return out;
+}
 
-  const sr = audio.ctx.sampleRate;
+/* 把当前编曲摊成 tick 事件。bar 从 0 递增，和弦进行跟着往前走，
+   所以导 7 小节正好是一个完整的 4536251 循环。 */
+function collectMidi (bars) {
   const sd = stepDur();
+  const secPerTick = 60 / state.bpm / PPQ;
+  const per = BEATS[state.beat].per;
   const steps = state.steps;
-  const music = bars * steps * sd;
-  const tail = 1.8;                        // 留够混响和长音的收尾，别一刀切死
-  const OC = window.OfflineAudioContext || window.webkitOfflineAudioContext;
-  const off = new OC(2, Math.ceil((music + tail) * sr), sr);
+  // 摇摆只推每拍的后半格，和实时播放同一套换算
+  const swingT = state.swing > 50
+    ? Math.min(0.8, (state.swing - 50) / 20 * 0.8) * TICK_PER_STEP
+    : 0;
 
-  const g = buildOfflineGraph(off);
-
-  const keep = { ctx:audio.ctx, master:audio.master, bassBus:audio.bassBus,
-                 drumBus:audio.drumBus, wet:audio.wet, out:audio.out };
-  const visLen = visQueue.length;
+  const drums = [], bass = [], pad = [];
   const flip = kickFlip;
-  const hats = openHats.length;
-
-  audio.ctx = off; audio.master = g.master; audio.bassBus = g.bassBus;
-  audio.drumBus = g.drumBus; audio.wet = g.wet; audio.out = null;
   try {
-    // 调度这一步必须是同步跑完的：中途一让出，实时播放的定时器就会
-    // 读到离线 ctx 的时钟，把音排到错误的时间线上。
     for (let b = 0; b < bars; b++) {
       for (let i = 0; i < steps; i++) {
-        scheduleStep(i, b * steps * sd + i * sd, b);
+        const at = b * steps * TICK_PER_STEP + i * TICK_PER_STEP
+                 + ((i % per) === per / 2 ? swingT : 0);
+        for (const e of stepEvents(i, b)) {
+          if (e.t === "d") {
+            drums.push({ tick:Math.round(at), dur:30, note:gmNoteOf(e.voice), vel:vel127(e.vel) });
+          } else if (e.t === "b") {
+            bass.push({ tick:Math.round(at), dur:Math.max(10, Math.round(e.secs / secPerTick)),
+                        note:Math.max(0, Math.min(127, e.note)), vel:vel127(e.vel) });
+          } else {
+            for (const n of e.notes) {
+              pad.push({ tick:Math.round(at), dur:Math.max(10, Math.round(e.secs / secPerTick)),
+                         note:Math.max(0, Math.min(127, n)), vel:vel127(e.vel) });
+            }
+          }
+        }
       }
     }
   } finally {
-    audio.ctx = keep.ctx; audio.master = keep.master; audio.bassBus = keep.bassBus;
-    audio.drumBus = keep.drumBus; audio.wet = keep.wet; audio.out = keep.out;
-    visQueue.length = visLen;        // 离线这一趟不参与界面高亮
-    kickFlip = flip;                 // 别把实时播放的五度交替拨乱
-    openHats.length = hats;
+    kickFlip = flip;             // 导出不该改变实时播放的五度交替
   }
-
-  return off.startRendering();
+  return { drums:drums, bass:bass, pad:pad };
 }
 
-// 16bit PCM WAV。自己拼字节，不引任何库 —— 单文件的前提。
-function encodeWav (buf) {
-  const ch = buf.numberOfChannels;
-  const n = buf.length;
-  const sr = buf.sampleRate;
-  const data = [];
-  for (let c = 0; c < ch; c++) data.push(buf.getChannelData(c));
+// 音轨名只写 ASCII：中文名在部分老 DAW 里会显示成乱码，不值当
+function midiTrack (name, ch, notes) {
+  const bytes = [];
+  const nm = [];
+  for (let i = 0; i < name.length; i++) nm.push(name.charCodeAt(i) & 0x7F);
+  bytes.push(0x00, 0xFF, 0x03, nm.length, ...nm);
 
-  // 离线渲染不走扬声器，峰值可能略微过 0dB；先量一遍再统一压，免得出爆音
-  let peak = 0;
-  for (let c = 0; c < ch; c++) {
-    const d = data[c];
-    for (let i = 0; i < n; i++) { const v = d[i] < 0 ? -d[i] : d[i]; if (v > peak) peak = v; }
+  const list = [];
+  for (const n of notes) {
+    list.push({ at:n.tick, kind:1, msg:[0x90 | ch, n.note, n.vel] });
+    list.push({ at:n.tick + n.dur, kind:0, msg:[0x80 | ch, n.note, 0x40] });
   }
-  const trim = peak > 0.985 ? 0.985 / peak : 1;
+  // 同一 tick 先 off 后 on，否则同音高的下一次会掐掉前一次
+  list.sort((a, b) => a.at - b.at || a.kind - b.kind);
 
-  const bytes = 44 + n * ch * 2;
-  const ab = new ArrayBuffer(bytes);
-  const v = new DataView(ab);
-  const str = (off, s) => { for (let i = 0; i < s.length; i++) v.setUint8(off + i, s.charCodeAt(i)); };
-
-  str(0, "RIFF"); v.setUint32(4, bytes - 8, true); str(8, "WAVE");
-  str(12, "fmt "); v.setUint32(16, 16, true); v.setUint16(20, 1, true);
-  v.setUint16(22, ch, true); v.setUint32(24, sr, true);
-  v.setUint32(28, sr * ch * 2, true); v.setUint16(32, ch * 2, true);
-  v.setUint16(34, 16, true);
-  str(36, "data"); v.setUint32(40, n * ch * 2, true);
-
-  let o = 44;
-  for (let i = 0; i < n; i++) {
-    for (let c = 0; c < ch; c++) {
-      let s = data[c][i] * trim;
-      s = s < -1 ? -1 : (s > 1 ? 1 : s);
-      v.setInt16(o, s < 0 ? s * 0x8000 : s * 0x7fff, true);
-      o += 2;
-    }
+  let last = 0;
+  for (const it of list) {
+    bytes.push(...vlq(Math.max(0, it.at - last)), ...it.msg);
+    last = it.at;
   }
-  return { blob: new Blob([ab], { type:"audio/wav" }), peak: peak, trimmed: trim < 1 };
+  bytes.push(0x00, 0xFF, 0x2F, 0x00);
+  return bytes;
+}
+
+function midiTempoTrack () {
+  const bytes = [];
+  const nm = [];
+  for (const c of "Rhythm Buddy") nm.push(c.charCodeAt(0));
+  bytes.push(0x00, 0xFF, 0x03, nm.length, ...nm);
+
+  // 速度：微秒/四分音符。DAW 靠这个把 tick 换成秒，写错了整曲都会变慢
+  const us = Math.round(60000000 / state.bpm);
+  bytes.push(0x00, 0xFF, 0x51, 0x03, (us >> 16) & 255, (us >> 8) & 255, us & 255);
+
+  // 拍号：分子 / log2(分母)。6/8 是 6 个八分音符一小节，写 6,3
+  const parts = state.beat.split("/");
+  const nn = Number(parts[0]) || 4;
+  const dd = Math.round(Math.log(Number(parts[1]) || 4) / Math.LN2);
+  bytes.push(0x00, 0xFF, 0x58, 0x04, nn, dd, 24, 8);
+
+  bytes.push(0x00, 0xFF, 0x2F, 0x00);
+  return bytes;
+}
+
+function midiChunk (type, data) {
+  const n = data.length;
+  return [type.charCodeAt(0), type.charCodeAt(1), type.charCodeAt(2), type.charCodeAt(3),
+          (n >>> 24) & 255, (n >>> 16) & 255, (n >>> 8) & 255, n & 255, ...data];
+}
+
+function encodeMidi (bars) {
+  const ev = collectMidi(bars);
+  const tracks = [
+    midiTempoTrack(),
+    midiTrack("Drums", 9, ev.drums),     // 鼓固定在第 10 通道
+    midiTrack("Bass", 0, ev.bass),
+    midiTrack("Pad", 1, ev.pad)
+  ];
+  const head = midiChunk("MThd", [0x00, 0x01, 0x00, tracks.length, (PPQ >> 8) & 255, PPQ & 255]);
+  const bytes = head.slice();
+  for (const t of tracks) bytes.push(...midiChunk("MTrk", t));
+  return {
+    blob: new Blob([new Uint8Array(bytes)], { type:"audio/midi" }),
+    counts: { drums:ev.drums.length, bass:ev.bass.length, pad:ev.pad.length }
+  };
 }
 
 function downloadBlob (blob, name) {
@@ -6042,27 +6133,23 @@ const expBtnEl = document.getElementById("expBtn");
 const expBarsEl = document.getElementById("expBars");
 
 if (expBtnEl) {
-  expBtnEl.addEventListener("click", async () => {
+  expBtnEl.addEventListener("click", () => {
     const bars = Number(expBarsEl && expBarsEl.value) || 4;
-    const wasPlaying = state.playing;
-    // 边放边渲会抢 CPU，实时那头会卡出爆音；先停，导完再告诉用户可以继续
-    if (wasPlaying) stop();
-
     const label = expBtnEl.textContent;
     expBtnEl.disabled = true;
-    expBtnEl.textContent = "渲染中…";
+    expBtnEl.textContent = "导出中…";
     toolNote("");
 
+    // MIDI 只是把已有的 pattern 摊成事件，几毫秒的事，不用停播放
     try {
-      const buf = await renderMix(bars);
-      const wav = encodeWav(buf);
+      const mid = encodeMidi(bars);
       const tag = state.beat.replace("/", "-");
-      const name = "节奏伙伴 " + state.bpm + "BPM " + tag + " " + bars + "小节.wav";
-      downloadBlob(wav.blob, name);
-      toolNote("已导出 " + buf.duration.toFixed(1) + " 秒 WAV" +
-        (wav.trimmed ? "（峰值超了，整体压到 0.985）" : "") +
-        (melody.ready ? " · 只导鼓机，不含载入的旋律" : "") +
-        (wasPlaying ? " · 播放已停" : ""));
+      const name = "节奏伙伴 " + state.bpm + "BPM " + tag + " " + bars + "小节.mid";
+      downloadBlob(mid.blob, name);
+      const c = mid.counts;
+      toolNote("已导出 " + bars + " 小节 MIDI：" + c.drums + " 鼓 / " +
+        c.bass + " 贝斯 / " + c.pad + " 和声垫" +
+        (melody.ready ? " · 不含载入的旋律，MIDI 只记编曲" : ""));
     } catch (err) {
       toolNote("导出失败：" + (err && err.message ? err.message : err));
     } finally {
@@ -6115,12 +6202,7 @@ function load () {
       state.bassProg = d.bassProg;
     }
     if (Array.isArray(d.customProg)) {
-      for (let i = 0; i < 4 && i < d.customProg.length; i++) {
-        const c = d.customProg[i];
-        if (c && typeof c.s === "number") {
-          state.customProg[i] = { s: ((Math.round(c.s) % 12) + 12) % 12, m: c.m ? 1 : 0 };
-        }
-      }
+      state.customProg = normalizeCustom(d.customProg);
     }
     if (typeof d.transpose === "number") state.transpose = Math.max(-6, Math.min(6, Math.round(d.transpose)));
     if (d.drums && typeof d.drums === "object") {
