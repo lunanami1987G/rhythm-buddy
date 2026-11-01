@@ -1,0 +1,13 @@
+# 统一换行符，避免 Windows 上提交 CRLF 导致别人 clone 下来全是改动
+* text=auto eol=lf
+
+# 二进制资源不做换行转换
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.gif binary
+*.mp3 binary
+*.wav binary
+*.ogg binary
+*.ico binary
