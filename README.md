@@ -3,7 +3,7 @@
 **一个双击就能打开的浏览器鼓机 / 伴奏机。单文件、零依赖、可离线。**
 
 <p align="left">
-  <img alt="version" src="https://img.shields.io/badge/version-10.1-ff9f43">
+  <img alt="version" src="https://img.shields.io/badge/version-10.2-ff9f43">
   <img alt="license" src="https://img.shields.io/badge/license-MIT-4c9a2a">
   <img alt="deps" src="https://img.shields.io/badge/dependencies-0-blue">
   <img alt="build" src="https://img.shields.io/badge/build-none-blue">
@@ -29,7 +29,7 @@
 
 <table>
 <tr><th width="160">项目</th><th>说明</th></tr>
-<tr><td><b>当前版本</b></td><td>10.1（2026-11-01）</td></tr>
+<tr><td><b>当前版本</b></td><td>10.2（2026-11-02）</td></tr>
 <tr><td><b>形态</b></td><td>单个 <code>index.html</code>，6993 行，所有音色/样式/逻辑内联</td></tr>
 <tr><td><b>依赖</b></td><td>无。不联网、不构建、不装包</td></tr>
 <tr><td><b>许可</b></td><td>MIT</td></tr>
@@ -46,7 +46,9 @@
 
 直接打开：**https://lunanami1987G.github.io/rhythm-buddy/**
 
-手机浏览器也建议用这个链接。iOS 上 Safari 可以直接「添加到主屏幕」，打开后是全屏的，和 App 差不多。
+手机浏览器也建议用这个链接。iOS 上 Safari 直接「添加到主屏幕」，之后就是一个全屏图标，和 App 差不多，**第一次打开后离线也能用**（页面会被存进本地缓存，没网照常开）。
+
+> **iPhone / iPad 上不要用「保存到本地」这条路。** 本地 html 在 iOS 上找不到「用浏览器打开」，是系统限制而非缺少浏览器，详见[常见问题](#常见问题)。
 
 ## 本地使用
 
@@ -58,6 +60,8 @@
 git clone https://github.com/lunanami1987G/rhythm-buddy.git
 # 然后双击 index.html
 ```
+
+> **这一节只适用于电脑和安卓。** iPhone / iPad 上本地 html 没有「用浏览器打开」这个选项，也不是换个浏览器能解决的：Safari 不认 `file://`，「文件」App 的 Quick Look 打开 html 只显示源码、不执行 JS，任何 App 都没有注册 .html 的打开方式。iOS 上一律走[在线使用](#在线使用)加「添加到主屏幕」。
 
 **不需要服务器，不需要 npm，不需要构建。** 文件里所有音色、代码、样式都是内联的。
 
@@ -88,6 +92,7 @@ git clone https://github.com/lunanami1987G/rhythm-buddy.git
 几点实际会遇到的：
 
 - **iPhone 没声音**：先检查侧边的**静音开关**。iOS 上网页音频会被物理静音键掐掉，这个和网页无关
+- **iPhone / iPad 打不开本地 html，找不到浏览器**：iOS 没有「用浏览器打开 html」这件事。Safari 不支持 `file://`，系统也不允许 App 声明自己打开 .html，所以分享面板里永远不会出现浏览器；「文件」App 里点开只走 Quick Look，显示的是源码，JS 不执行。**这不是版本问题，换哪台机器、哪个浏览器都一样。** 正确做法：Safari 打开[在线地址](#在线使用) → 分享 → **添加到主屏幕**，之后从桌面图标进，全屏、可离线。若必须在完全无网环境用，装 Documents by Readdle（免费），用它内置的浏览器打开本地文件
 - **打击垫**：手指按在垫子上不动，会按落点高度给不同力度（靠下更响）
 - **翻页**：手机上一行放不下 16 格，硬挤每格只剩 16 像素、按下去常碰到两格。所以窄屏每屏只放 **2 拍（8 格，每格 34 像素）**，网格顶上有一条导航条可以点左右翻、也能拖滑块。**翻页不会自己动**，播放中也停在当前页。横屏或电脑上一行放得下，导航条会自己消失
 - **移调要等**：一首 4 分钟的歌，电脑上约 8 秒，手机上可能要 20–40 秒。处理期间原调会继续播，算完自动无缝切过去，不会静音卡住

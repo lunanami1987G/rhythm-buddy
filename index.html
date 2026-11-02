@@ -17,7 +17,8 @@
 <meta property="og:image" content="https://lunanami1987G.github.io/rhythm-buddy/assets/screenshot-desktop.png">
 <!-- 图标内联成 data URI，避免额外文件请求（也没有 favicon 404） -->
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='15' fill='%230c0e12'/%3E%3Ccircle cx='32' cy='38' r='13' fill='none' stroke='%23ff9f43' stroke-width='4.5'/%3E%3Cpath d='M32 15v9M18.5 21.5l5 6.5M45.5 21.5l-5 6.5' stroke='%23ff9f43' stroke-width='4.5' stroke-linecap='round'/%3E%3C/svg%3E">
-<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='15' fill='%230c0e12'/%3E%3Ccircle cx='32' cy='38' r='13' fill='none' stroke='%23ff9f43' stroke-width='4.5'/%3E%3Cpath d='M32 15v9M18.5 21.5l5 6.5M45.5 21.5l-5 6.5' stroke='%23ff9f43' stroke-width='4.5' stroke-linecap='round'/%3E%3C/svg%3E">
+<!-- iOS 只认 PNG 的 apple-touch-icon，SVG data URI 会被静默忽略，主屏图标变空白方块 -->
+<link rel="apple-touch-icon" href="assets/icon-180.png">
 <style>
   :root{
     --bg:#0c0e12;
@@ -32,7 +33,9 @@
   *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
   html,body{ height:100%; }
   body{
-    margin:0; padding:20px 16px 48px;
+    margin:0;
+    /* 加到主屏后是整屏模式，写死的 20px 会被刘海和状态栏吃掉；env() 在普通浏览器里返回 0，会自动退化成原值 */
+    padding:max(20px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(48px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
     background:
       radial-gradient(1100px 520px at 50% -8%, #1e2430 0%, transparent 65%),
       radial-gradient(700px 400px at 85% 110%, #241a12 0%, transparent 60%),
@@ -6988,6 +6991,16 @@ onmessage = function (e) {
     postMessage({ id: id, type: "fail", error: String(err && err.message || err) });
   }
 };
+</script>
+<script>
+/* 离线缓存：iOS「添加到主屏幕」后没网也能打开。
+   只在 https 下注册——桌面双击打开时是 file://，浏览器不给注册，
+   所以这里必须静默失败，绝不能让主程序受它影响。 */
+if ("serviceWorker" in navigator && location.protocol === "https:") {
+  window.addEventListener("load", function () {
+    navigator.serviceWorker.register("sw.js").catch(function () { /* 注册失败不影响使用 */ });
+  });
+}
 </script>
 </body>
 </html>
