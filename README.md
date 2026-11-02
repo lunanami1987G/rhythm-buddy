@@ -7,7 +7,7 @@
   <img alt="license" src="https://img.shields.io/badge/license-MIT-4c9a2a">
   <img alt="deps" src="https://img.shields.io/badge/dependencies-0-blue">
   <img alt="build" src="https://img.shields.io/badge/build-none-blue">
-  <img alt="size" src="https://img.shields.io/badge/index.html-651%20KB-lightgrey">
+  <img alt="size" src="https://img.shields.io/badge/index.html-635%20KB-lightgrey">
 </p>
 
 不用装软件，不用注册，不用联网。下载一个 `index.html`，双击，就开始。
@@ -30,7 +30,7 @@
 <table>
 <tr><th width="160">项目</th><th>说明</th></tr>
 <tr><td><b>当前版本</b></td><td>10.1（2026-11-01）</td></tr>
-<tr><td><b>形态</b></td><td>单个 <code>index.html</code>，6886 行，所有音色/样式/逻辑内联</td></tr>
+<tr><td><b>形态</b></td><td>单个 <code>index.html</code>，6993 行，所有音色/样式/逻辑内联</td></tr>
 <tr><td><b>依赖</b></td><td>无。不联网、不构建、不装包</td></tr>
 <tr><td><b>许可</b></td><td>MIT</td></tr>
 </table>
@@ -44,7 +44,7 @@
 
 ## 在线使用
 
-直接打开：**https://lunanami1987.github.io/rhythm-buddy/**
+直接打开：**https://lunanami1987G.github.io/rhythm-buddy/**
 
 手机浏览器也建议用这个链接。iOS 上 Safari 可以直接「添加到主屏幕」，打开后是全屏的，和 App 差不多。
 
@@ -55,7 +55,7 @@
 ```bash
 # 1. 最简单：浏览器打开在线链接，右键"另存为"得到一个 html
 # 2. 或者克隆一份
-git clone https://github.com/lunanami1987/rhythm-buddy.git
+git clone https://github.com/lunanami1987G/rhythm-buddy.git
 # 然后双击 index.html
 ```
 
@@ -163,7 +163,7 @@ git clone https://github.com/lunanami1987/rhythm-buddy.git
 
 - **导出**：手拼 SMF（format 1 / PPQ 480），不引任何库。音符直接取自 `stepEvents()` —— 和播放共用同一份逻辑，改节奏型不会出现「听着对、导出来错」。摇摆偏移按 tick 换算写进事件，拖进 DAW 后节奏和页面里一致。鼓的时值取「同件乐器相邻两击的 tick 间距 × `state.gate`」，网格上那条横线量的也是这个数
 - **窄屏分页**：一条轨道套两层 —— `.steps` 是一屏宽的窗口（`overflow:hidden`），`.ptrack` 才是时间线本身。窄屏时格子固定宽、按「拍」切页，翻页就是给 `.ptrack` 加 `translateX`。位移量取起点那一拍的 `offsetLeft`，拍间隙和缩放自动含进去，不用手算格宽
-- **单文件**：6886 行里所有音色、样式、逻辑全部内联，零外部请求。鼓采样以 base64 内嵌（约 340KB）
+- **单文件**：6993 行里所有音色、样式、逻辑全部内联，零外部请求。鼓采样以 base64 内嵌（约 340KB）
 
 ## 素材与致谢
 
